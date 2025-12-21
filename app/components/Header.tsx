@@ -1,49 +1,70 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import Sidebar from "./Sidebar";
 
 export default function Header() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <header
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr auto 1fr",
-        alignItems: "center",
-        padding: "20px 30px",
-        borderBottom: "1px solid #e2ddd6",
-        background: "#F6F1EA",
-      }}
-    >
-      {/* LEFT NAV */}
-      <nav style={{ display: "flex", gap: "20px" }}>
-  <a href="/men">Men</a>
-  <a href="/women">Women</a>
-  <a href="#">Flash Sale</a>
-  <a href="/account">Account</a>
-</nav>
+    <>
+      <Sidebar open={open} onClose={() => setOpen(false)} />
 
-
-
-      {/* CENTER BRAND */}
-      <Link
-        href="/"
+      <header
         style={{
-          fontWeight: 700,
-          textDecoration: "none",
-          color: "#1A1A1D",
-          fontSize: "18px",
-          
+          display: "grid",
+          gridTemplateColumns: "auto 1fr auto",
+          alignItems: "center",
+          padding: "16px 20px",
+          borderBottom: "1px solid #e2ddd6",
+          background: "#F6F1EA",
+          position: "sticky",
+          top: 0,
+          zIndex: 30,
         }}
       >
-        CHUMUNG CLOTHING
-      </Link>
+        {/* LEFT: MENU */}
+        <button
+          onClick={() => setOpen(true)}
+          style={{
+            fontSize: "22px",
+            background: "none",
+            border: "none",
+            justifySelf: "start",
+          }}
+        >
+          ☰
+        </button>
 
-      {/* RIGHT ACTIONS */}
-      <div style={{ display: "flex", gap: "20px", justifyContent: "flex-end" }}>
-  <a href="/wishlist">Wishlist</a>
-  <a href="/cart">Cart</a>
-</div>
+        {/* CENTER: BRAND (TRUE CENTER) */}
+        <Link
+          href="/"
+          style={{
+            justifySelf: "center",
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            textDecoration: "none",
+            color: "#1A1A1D",
+            fontSize: "14px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          CHUMUNG&nbsp;CLOTHING
+        </Link>
 
-    </header>
+        {/* RIGHT: ICONS */}
+        <div
+          style={{
+            display: "flex",
+            gap: "14px",
+            justifySelf: "end",
+          }}
+        >
+          <Link href="/wishlist">❤️</Link>
+          <Link href="/cart">🛒</Link>
+        </div>
+      </header>
+    </>
   );
 }

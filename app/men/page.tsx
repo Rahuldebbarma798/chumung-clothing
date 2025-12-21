@@ -11,6 +11,9 @@ export default function MenPage() {
         <a href="/product/2" style={{ border: "1px solid #e2ddd6", padding: "20px" }}>
           vikini
         </a>
+        <a href="/product/2" style={{ border: "1px solid #e2ddd6", padding: "20px" }}>
+          vikinio
+        </a>
       </div>
     </main>
   );
