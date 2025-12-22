@@ -5,14 +5,14 @@ export default function MenPage() {
 
       <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
         <a href="/product/1" style={{ border: "1px solid #e2ddd6", padding: "20px" }}>
-          kuvoi under wear (pre_owned)
+          Over Size Tshirt
         </a>
 
         <a href="/product/2" style={{ border: "1px solid #e2ddd6", padding: "20px" }}>
-          vikini
+          Shirt
         </a>
         <a href="/product/2" style={{ border: "1px solid #e2ddd6", padding: "20px" }}>
-          vikinio
+          Hoodie
         </a>
       </div>
     </main>

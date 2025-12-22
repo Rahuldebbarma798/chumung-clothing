@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const TOTAL_PAGES = 3;
+
 export default function ProductsPage({
   params,
 }: {
@@ -9,42 +11,51 @@ export default function ProductsPage({
 
   return (
     <main style={{ padding: "16px" }}>
-      <h1>Products — Page {page}</h1>
+      <h1 style={{ marginBottom: "20px" }}>
+        Products — Page {page}
+      </h1>
 
+      {/* PRODUCTS */}
       <section style={grid}>
         {Array.from({ length: 6 }).map((_, i) => {
           const productId = (page - 1) * 6 + i + 1;
 
           return (
-            <div key={productId} style={card}>
-              {/* CLICKABLE PRODUCT */}
-              <Link
-                href={`/product/${productId}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
+            <Link
+              key={productId}
+              href={`/product/${productId}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <div style={card}>
                 <div style={imageBox}>Product Image</div>
                 <p>Product {productId}</p>
-              </Link>
-
-              {/* ACTION */}
-              <button style={btn}>Add to Cart</button>
-            </div>
+              </div>
+            </Link>
           );
         })}
       </section>
 
       {/* PAGINATION */}
       <div style={pagination}>
-        <a href="/products/1" style={pageBtn}>1</a>
-        <a href="/products/2" style={pageBtn}>2</a>
-        <a href="/products/3" style={pageBtn}>3</a>
-        <a href={`/products/${page + 1}`} style={pageBtn}>Next →</a>
+        {Array.from({ length: TOTAL_PAGES }).map((_, i) => {
+          const pageNum = i + 1;
+          return (
+            <Link
+              key={pageNum}
+              href={`/products/${pageNum}`}
+              style={page === pageNum ? activePage : pageBtn}
+            >
+              {pageNum}
+            </Link>
+          );
+        })}
       </div>
     </main>
   );
 }
 
-/* styles */
+/* ================= STYLES ================= */
+
 const grid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
@@ -52,37 +63,36 @@ const grid = {
 };
 
 const card = {
-  padding: "14px",
   background: "#fff",
+  padding: "12px",
   borderRadius: "8px",
-  display: "flex",
-  flexDirection: "column" as const,
-  gap: "10px",
 };
 
 const imageBox = {
   height: "160px",
-  background: "#e2ddd6",
+  background: "#ddd",
   borderRadius: "6px",
   marginBottom: "8px",
 };
 
-const btn = {
-  padding: "10px",
-  borderRadius: "6px",
-  border: "1px solid #ccc",
-};
-
 const pagination = {
+  marginTop: "36px",
   display: "flex",
   justifyContent: "center",
-  gap: "10px",
-  marginTop: "30px",
+  gap: "14px",
 };
 
 const pageBtn = {
   padding: "8px 12px",
   border: "1px solid #ccc",
   textDecoration: "none",
-  color: "black",
+  color: "#000",
+};
+
+const activePage = {
+  padding: "8px 12px",
+  border: "1px solid #000",
+  background: "#000",
+  color: "#fff",
+  textDecoration: "none",
 };

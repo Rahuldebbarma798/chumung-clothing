@@ -4,7 +4,7 @@ import HeroSlider from "./components/HeroSlider";
 export default function Home() {
   return (
     <main style={{ padding: "16px" }}>
-      {/* MEN / WOMEN CATEGORY */}
+      {/* MEN / WOMEN */}
       <section style={categorySection}>
         <Link href="/men" style={categoryCard}>
           <img src="/men.jpg" alt="Men" style={categoryImage} />
@@ -22,31 +22,38 @@ export default function Home() {
 
       {/* PRODUCTS */}
       <section style={grid}>
-        {Array.from({ length: 6 }).map((_, i) => {
-          const productId = i + 1;
-
-          return (
-            <Link
-              key={productId}
-              href={`/product/${productId}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <div style={card}>
-                <div style={imageBox}>Product Image</div>
-                <p>Product {productId}</p>
-              </div>
-            </Link>
-          );
-        })}
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Link
+            key={i}
+            href={`/product/${i + 1}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div style={card}>
+              <div style={imageBox}>Product Image</div>
+              <p>Product {i + 1}</p>
+            </div>
+          </Link>
+        ))}
       </section>
 
-      {/* PAGINATION */}
-      <div style={pagination}>
-        <Link href="/" style={pageBtn}>1</Link>
-        <Link href="/products/2" style={pageBtn}>2</Link>
-        <Link href="/products/3" style={pageBtn}>3</Link>
-        <Link href="/products/2" style={pageBtn}>Next →</Link>
+      {/* VIEW MORE */}
+      <div style={viewMoreWrap}>
+        <Link href="/products/1" style={viewMoreBtn}>
+          View More →
+        </Link>
       </div>
+
+      {/* BRAND VIDEO ONLY */}
+      <section style={videoSection}>
+        <video
+          src="/brand.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={brandVideo}
+        />
+      </section>
     </main>
   );
 }
@@ -102,16 +109,27 @@ const imageBox = {
   marginBottom: "8px",
 };
 
-const pagination = {
-  marginTop: "30px",
-  display: "flex",
-  justifyContent: "center",
-  gap: "12px",
+const viewMoreWrap = {
+  marginTop: "32px",
+  textAlign: "center" as const,
 };
 
-const pageBtn = {
-  padding: "8px 12px",
-  border: "1px solid #ccc",
+const viewMoreBtn = {
+  display: "inline-block",
+  padding: "12px 28px",
+  border: "1px solid #000",
   textDecoration: "none",
-  color: "black",
+  fontWeight: 500,
+  letterSpacing: "0.08em",
+};
+
+/* VIDEO SECTION */
+
+const videoSection = {
+  marginTop: "60px",
+};
+
+const brandVideo = {
+  width: "100%",
+  borderRadius: "10px",
 };

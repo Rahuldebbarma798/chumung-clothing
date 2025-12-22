@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 
 export default function Sidebar({
@@ -10,101 +7,93 @@ export default function Sidebar({
   open: boolean;
   onClose: () => void;
 }) {
-  const [showMore, setShowMore] = useState(false);
+  if (!open) return null;
 
   return (
     <>
       {/* OVERLAY */}
-      {open && (
-        <div
-          onClick={onClose}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.4)",
-            zIndex: 40,
-          }}
-        />
-      )}
+      <div style={overlay} onClick={onClose}></div>
 
       {/* SIDEBAR */}
-      <aside
-        style={{
-          position: "fixed",
-          top: 0,
-          left: open ? 0 : "-280px",
-          width: "260px",
-          height: "100vh",
-          background: "#F6F1EA",
-          padding: "20px",
-          transition: "left 0.3s ease",
-          zIndex: 50,
-        }}
-      >
-        <button onClick={onClose}>✕</button>
+      <aside style={sidebar}>
+        <button onClick={onClose} style={closeBtn}>✕</button>
 
-       <nav style={{ marginTop: "20px" }}>
-  <div style={{ marginBottom: "12px" }}>
-    <Link href="/" onClick={onClose}>Home</Link>
-  </div>
+        <nav style={nav}>
+          <Link href="/sale" style={item}>Flash Sale</Link>
+          <Link href="/men" style={item}>Men</Link>
+          <Link href="/women" style={item}>Women</Link>
+          <Link href="/track-order" style={item}>Track My Order</Link>
 
-  <div style={{ marginBottom: "12px" }}>
-    <Link href="#">Flash Sale</Link>
-  </div>
-
-  <div style={{ marginBottom: "12px" }}>
-    <Link href="/men" onClick={onClose}>Men</Link>
-  </div>
-
-  <div style={{ marginBottom: "20px" }}>
-    <Link href="/women" onClick={onClose}>Women</Link>
-  </div>
-
-  {/* ACCOUNT */}
-  <div style={{ marginBottom: "12px" }}>
-    <Link href="/account" onClick={onClose}>Account</Link>
-  </div>
-
-  {/* TRACK ORDER */}
-  <div style={{ marginBottom: "20px" }}>
-    <Link href="/track-order" onClick={onClose}>
-      Track My Order
-    </Link>
-  </div>
-
-  {/* MORE */}
-  <button
-    onClick={() => setShowMore(!showMore)}
-    style={{
-      background: "none",
-      border: "none",
-      padding: 0,
-      cursor: "pointer",
-      marginBottom: "10px",
-    }}
-  >
-    More ▾
-  </button>
-
-  {showMore && (
-    <div style={{ marginLeft: "15px" }}>
-      <div style={{ marginBottom: "8px" }}>
-        <Link href="/contact" onClick={onClose}>Contact Us</Link>
-      </div>
-      <div style={{ marginBottom: "8px" }}>
-        <Link href="/about" onClick={onClose}>About Us</Link>
-      </div>
-      <div style={{ marginBottom: "8px" }}>
-        <Link href="/privacy" onClick={onClose}>Privacy Policy</Link>
-      </div>
-      <div>
-        <Link href="/terms" onClick={onClose}>Terms & Conditions</Link>
-      </div>
-    </div>
-  )}
-</nav>
-
+          <details style={details}>
+            <summary style={summary}>More</summary>
+            <Link href="/about" style={subItem}>About Us</Link>
+            <Link href="/contact" style={subItem}>Contact Us</Link>
+            <Link href="/privacy" style={subItem}>Privacy Policy</Link>
+            <Link href="/terms" style={subItem}>Terms & Conditions</Link>
+          </details>
+        </nav>
       </aside>
     </>
   );
 }
+
+/* ================= STYLES ================= */
+
+const overlay = {
+  position: "fixed" as const,
+  inset: 0,
+  background: "rgba(0,0,0,0.3)",
+  zIndex: 40,
+};
+
+const sidebar = {
+  position: "fixed" as const,
+  top: 0,
+  left: 0,
+  width: "260px",
+  height: "100vh",
+  background: "#fff",
+  padding: "28px 24px",
+  zIndex: 50,
+  boxShadow: "2px 0 10px rgba(0,0,0,0.1)",
+};
+
+const closeBtn = {
+  background: "none",
+  border: "none",
+  fontSize: "18px",
+  cursor: "pointer",
+  marginBottom: "20px",
+};
+
+const nav = {
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: "18px",
+};
+
+const item = {
+  textDecoration: "none",
+  color: "#000",
+  fontSize: "15px",
+  fontWeight: 500,
+};
+
+const details = {
+  marginTop: "10px",
+};
+
+const summary = {
+  cursor: "pointer",
+  fontSize: "15px",
+  fontWeight: 500,
+};
+
+const subItem = {
+  display: "block",
+  marginTop: "10px",
+  marginLeft: "12px",
+  textDecoration: "none",
+  fontSize: "14px",
+  color: "#333",
+};
