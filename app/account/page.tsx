@@ -1,29 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function AccountPage() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const { loggedIn, login, logout } = useAuth();
 
   return (
-    <main style={{ padding: "30px" }}>
-      <h1>My Account</h1>
+    <main style={{ padding: "16px" }}>
+      <h1>Account</h1>
 
       {!loggedIn ? (
         <>
-          <p>Please login to access your account.</p>
-          <button onClick={() => setLoggedIn(true)}>Login (test)</button>
+          <p>Please login to continue</p>
+          <button onClick={login} style={btn}>
+            Login
+          </button>
         </>
       ) : (
         <>
-          <p>Welcome back 👋</p>
-          <ul>
-            <li><a href="/wishlist">Wishlist</a></li>
-            <li><a href="/track-order">Track My Order</a></li>
-          </ul>
-          <button onClick={() => setLoggedIn(false)}>Logout</button>
+          <p>You are logged in</p>
+          <button onClick={logout} style={btn}>
+            Logout
+          </button>
         </>
       )}
     </main>
   );
 }
+
+const btn = {
+  marginTop: "12px",
+  padding: "8px 14px",
+  border: "1px solid #000",
+  background: "#fff",
+};

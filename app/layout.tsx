@@ -2,6 +2,16 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
+import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import { ProductProvider } from "./context/ProductContext";
+import { OrderProvider } from "./context/OrderContext";
+
+export const metadata = {
+  title: "CHUMUNG CLOTHING",
+  description: "Premium thrift fashion",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -9,11 +19,37 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <Header />
-        {children}
-        <Footer />
+      <body style={body}>
+        <AuthProvider>
+          <ProductProvider>
+            <CartProvider>
+              <OrderProvider>
+                <Header />
+
+                <main style={main}>
+                  {children}
+                </main>
+
+                <Footer />
+              </OrderProvider>
+            </CartProvider>
+          </ProductProvider>
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
+/* ================= STYLES ================= */
+
+const body = {
+  margin: 0,
+  minHeight: "100vh",
+  display: "flex",
+  flexDirection: "column" as const,
+};
+
+const main = {
+  flex: 1,
+  paddingTop: "64px",
+};

@@ -1,44 +1,72 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
+import { useCart } from "../context/CartContext";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const { cart } = useCart();
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // 🔥 CLOSE SIDEBAR ON ROUTE CHANGE
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
     <>
       <header style={header}>
         {/* MENU */}
-        <button style={menuBtn} onClick={() => setOpen(true)}>☰</button>
+        <button style={menuBtn} onClick={() => setOpen(true)}>
+          ☰
+        </button>
 
         {/* BRAND */}
         <Link href="/" style={brand}>
-          CHUMUNG CLOTHING
+          CHUMUNG&nbsp;CLOTHING
         </Link>
 
-        {/* ICONS */}
+        {/* RIGHT ICONS */}
         <div style={icons}>
+          <button style={iconBtn} aria-label="Search">
+            <SearchIcon />
+          </button>
+
           <Link href="/wishlist" style={icon}>
             <HeartIcon />
           </Link>
-          <Link href="/cart" style={icon}>
+
+          <Link href="/cart" style={cartIconWrap}>
             <CartIcon />
+            {cartCount > 0 && <span style={badge}>{cartCount}</span>}
           </Link>
+
           <Link href="/account" style={icon}>
             <UserIcon />
           </Link>
         </div>
       </header>
 
-      {/* SIDEBAR */}
       <Sidebar open={open} onClose={() => setOpen(false)} />
     </>
   );
 }
 
 /* ================= ICONS ================= */
+
+function SearchIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
 
 function HeartIcon() {
   return (
@@ -70,30 +98,59 @@ function UserIcon() {
 /* ================= STYLES ================= */
 
 const header = {
-  height: "60px",
+  position: "fixed" as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  height: "64px",
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  padding: "0 16px",
-  borderBottom: "1px solid #e2ddd6",
+  padding: "0 18px",
   background: "#fff",
+  borderBottom: "1px solid #eee",
+  zIndex: 10000,
 };
+
 
 const brand = {
   textDecoration: "none",
   color: "#000",
   fontWeight: 600,
-  letterSpacing: "0.12em",
+  letterSpacing: "0.14em",
   fontSize: "14px",
 };
 
 const icons = {
   display: "flex",
-  gap: "18px",
+  gap: "14px",
+  alignItems: "center",
 };
 
 const icon = {
   color: "#000",
+};
+
+const iconBtn = {
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+};
+
+const cartIconWrap = {
+  position: "relative" as const,
+  color: "#000",
+};
+
+const badge = {
+  position: "absolute" as const,
+  top: "-6px",
+  right: "-8px",
+  background: "#000",
+  color: "#fff",
+  borderRadius: "50%",
+  fontSize: "11px",
+  padding: "2px 6px",
 };
 
 const menuBtn = {

@@ -1,19 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import HeroSlider from "./components/HeroSlider";
+import { useProducts } from "./context/ProductContext";
 
-export default function Home() {
+export default function HomePage() {
+  const { products } = useProducts();
+
   return (
-    <main style={{ padding: "16px" }}>
-      {/* MEN / WOMEN */}
-      <section style={categorySection}>
+    <main>
+      {/* CATEGORY STRIP */}
+      <section style={categoryWrap}>
         <Link href="/men" style={categoryCard}>
-          <img src="/men.jpg" alt="Men" style={categoryImage} />
-          <span style={categoryText}>MEN</span>
+          <img src="/men.jpg" alt="Men" style={categoryImg} />
+          <span>MEN</span>
         </Link>
 
         <Link href="/women" style={categoryCard}>
-          <img src="/women.jpg" alt="Women" style={categoryImage} />
-          <span style={categoryText}>WOMEN</span>
+          <img src="/women.jpg" alt="Women" style={categoryImg} />
+          <span>WOMEN</span>
         </Link>
       </section>
 
@@ -21,37 +26,48 @@ export default function Home() {
       <HeroSlider />
 
       {/* PRODUCTS */}
-      <section style={grid}>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Link
-            key={i}
-            href={`/product/${i + 1}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <div style={card}>
-              <div style={imageBox}>Product Image</div>
-              <p>Product {i + 1}</p>
-            </div>
+      <section style={productSection}>
+        <h2 style={sectionTitle}>Featured Products</h2>
+
+        {products.length === 0 ? (
+          <p style={{ color: "#777" }}>No products yet.</p>
+        ) : (
+          <div style={productGrid}>
+            {products.slice(0, 4).map((p) => (
+              <Link
+                key={p.id}
+                href={`/product/${p.id}`}
+                style={productCard}
+              >
+                <img
+                  src={p.images[0]}
+                  alt={p.name}
+                  style={productImg}
+                />
+                <div style={productName}>{p.name}</div>
+                <div style={productPrice}>₹{p.price}</div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {products.length > 4 && (
+          <Link href="/products/1" style={viewMore}>
+            View More →
           </Link>
-        ))}
+        )}
       </section>
 
-      {/* VIEW MORE */}
-      <div style={viewMoreWrap}>
-        <Link href="/products/1" style={viewMoreBtn}>
-          View More →
-        </Link>
-      </div>
-
-      {/* BRAND VIDEO ONLY */}
-      <section style={videoSection}>
+      {/* BRAND VIDEO */}
+      <section style={videoWrap}>
         <video
           src="/brand.mp4"
-          autoPlay
           muted
           loop
           playsInline
-          style={brandVideo}
+          autoPlay
+          preload="auto"
+          style={video}
         />
       </section>
     </main>
@@ -60,76 +76,80 @@ export default function Home() {
 
 /* ================= STYLES ================= */
 
-const categorySection = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
+const categoryWrap = {
+  display: "flex",
   gap: "12px",
-  marginBottom: "20px",
+  padding: "16px",
 };
 
 const categoryCard = {
-  position: "relative" as const,
-  borderRadius: "10px",
-  overflow: "hidden",
+  flex: 1,
   textDecoration: "none",
+  color: "#000",
+  textAlign: "center" as const,
+  fontSize: "13px",
+  letterSpacing: "0.2em",
 };
 
-const categoryImage = {
+const categoryImg = {
   width: "100%",
   height: "120px",
   objectFit: "cover" as const,
-};
-
-const categoryText = {
-  position: "absolute" as const,
-  bottom: "10px",
-  left: "10px",
-  color: "white",
-  fontWeight: 600,
-  letterSpacing: "0.1em",
-};
-
-const grid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-  gap: "14px",
-  marginTop: "24px",
-};
-
-const card = {
-  background: "#fff",
-  padding: "12px",
-  borderRadius: "8px",
-};
-
-const imageBox = {
-  height: "160px",
-  background: "#ddd",
-  borderRadius: "6px",
+  borderRadius: "10px",
   marginBottom: "8px",
 };
 
-const viewMoreWrap = {
-  marginTop: "32px",
-  textAlign: "center" as const,
+const productSection = {
+  padding: "40px 16px",
 };
 
-const viewMoreBtn = {
-  display: "inline-block",
-  padding: "12px 28px",
-  border: "1px solid #000",
+const sectionTitle = {
+  marginBottom: "18px",
+  fontSize: "18px",
+};
+
+const productGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+  gap: "18px",
+};
+
+const productCard = {
   textDecoration: "none",
-  fontWeight: 500,
-  letterSpacing: "0.08em",
+  color: "#000",
 };
 
-/* VIDEO SECTION */
-
-const videoSection = {
-  marginTop: "60px",
-};
-
-const brandVideo = {
+const productImg = {
   width: "100%",
-  borderRadius: "10px",
+  height: "200px",
+  objectFit: "cover" as const,
+  borderRadius: "14px",
+};
+
+const productName = {
+  marginTop: "10px",
+  fontSize: "14px",
+};
+
+const productPrice = {
+  fontSize: "13px",
+  color: "#666",
+};
+
+const viewMore = {
+  display: "inline-block",
+  marginTop: "28px",
+  textDecoration: "none",
+  color: "#000",
+  fontSize: "14px",
+};
+
+const videoWrap = {
+  marginTop: "52px",
+  padding: "0 16px",
+};
+
+const video = {
+  width: "100%",
+  borderRadius: "16px",
 };

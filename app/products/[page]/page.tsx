@@ -1,51 +1,55 @@
-import Link from "next/link";
+"use client";
 
-const TOTAL_PAGES = 3;
+import Link from "next/link";
+import { useProducts } from "@/app/context/ProductContext";
+
+
+const PRODUCTS_PER_PAGE = 6;
 
 export default function ProductsPage({
   params,
 }: {
   params: { page: string };
 }) {
-  const page = Number(params.page);
+  const { products } = useProducts();
+  const currentPage = Number(params.page) || 1;
+
+  const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const end = start + PRODUCTS_PER_PAGE;
+
+  const visible = products.slice(start, end);
+  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
 
   return (
-    <main style={{ padding: "16px" }}>
-      <h1 style={{ marginBottom: "20px" }}>
-        Products — Page {page}
+    <main style={{ padding: "24px 16px" }}>
+      <h1 style={{ marginBottom: "24px" }}>
+        Products — Page {currentPage}
       </h1>
 
-      {/* PRODUCTS */}
       <section style={grid}>
-        {Array.from({ length: 6 }).map((_, i) => {
-          const productId = (page - 1) * 6 + i + 1;
-
-          return (
-            <Link
-              key={productId}
-              href={`/product/${productId}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <div style={card}>
-                <div style={imageBox}>Product Image</div>
-                <p>Product {productId}</p>
-              </div>
-            </Link>
-          );
-        })}
+        {visible.map((p) => (
+          <Link key={p.id} href={`/product/${p.id}`} style={card}>
+            <img src={p.image} style={image} />
+            <p style={name}>{p.name}</p>
+            <p style={price}>₹{p.price}</p>
+          </Link>
+        ))}
       </section>
 
-      {/* PAGINATION */}
       <div style={pagination}>
-        {Array.from({ length: TOTAL_PAGES }).map((_, i) => {
-          const pageNum = i + 1;
+        {Array.from({ length: totalPages }).map((_, i) => {
+          const page = i + 1;
           return (
             <Link
-              key={pageNum}
-              href={`/products/${pageNum}`}
-              style={page === pageNum ? activePage : pageBtn}
+              key={page}
+              href={`/products/${page}`}
+              style={{
+                ...pageBtn,
+                background: page === currentPage ? "#000" : "#fff",
+                color: page === currentPage ? "#fff" : "#000",
+              }}
             >
-              {pageNum}
+              {page}
             </Link>
           );
         })}
@@ -58,41 +62,43 @@ export default function ProductsPage({
 
 const grid = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-  gap: "14px",
+  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+  gap: "18px",
 };
 
 const card = {
-  background: "#fff",
-  padding: "12px",
-  borderRadius: "8px",
+  textDecoration: "none",
+  color: "#000",
 };
 
-const imageBox = {
-  height: "160px",
-  background: "#ddd",
-  borderRadius: "6px",
-  marginBottom: "8px",
+const image = {
+  width: "100%",
+  height: "200px",
+  objectFit: "cover" as const,
+  borderRadius: "14px",
+};
+
+const name = {
+  marginTop: "10px",
+  fontSize: "14px",
+};
+
+const price = {
+  fontSize: "13px",
+  color: "#666",
 };
 
 const pagination = {
   marginTop: "36px",
   display: "flex",
   justifyContent: "center",
-  gap: "14px",
+  gap: "10px",
 };
 
 const pageBtn = {
   padding: "8px 12px",
-  border: "1px solid #ccc",
+  border: "1px solid #ddd",
   textDecoration: "none",
-  color: "#000",
-};
-
-const activePage = {
-  padding: "8px 12px",
-  border: "1px solid #000",
-  background: "#000",
-  color: "#fff",
-  textDecoration: "none",
+  borderRadius: "6px",
+  fontSize: "14px",
 };
