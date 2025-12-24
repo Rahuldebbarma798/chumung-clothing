@@ -3,9 +3,12 @@
 import Link from "next/link";
 import HeroSlider from "./components/HeroSlider";
 import { useProducts } from "./context/ProductContext";
+import { useWishlist } from "./context/WishlistContext";
+import { Heart } from "lucide-react";
 
 export default function HomePage() {
   const { products } = useProducts();
+  const { toggleWishlist, isWishlisted } = useWishlist();
 
   return (
     <main>
@@ -32,29 +35,55 @@ export default function HomePage() {
         {products.length === 0 ? (
           <p style={{ color: "#777" }}>No products yet.</p>
         ) : (
-          <div style={productGrid}>
-            {products.slice(0, 4).map((p) => (
-              <Link
-                key={p.id}
-                href={`/product/${p.id}`}
-                style={productCard}
-              >
-                <img
-                  src={p.images[0]}
-                  alt={p.name}
-                  style={productImg}
-                />
-                <div style={productName}>{p.name}</div>
-                <div style={productPrice}>₹{p.price}</div>
-              </Link>
-            ))}
-          </div>
-        )}
+          <>
+            <div style={productGrid}>
+              {products.slice(0, 6).map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/product/${p.id}`}
+                  style={productCard}
+                >
+                  <div style={cardWrap}>
+                    <button
+                      style={heartBtn}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleWishlist({
+                          id: p.id,
+                          name: p.name,
+                          image: p.images[0],
+                          price: p.price,
+                        });
+                      }}
+                    >
+                      <Heart
+  size={18}
+  strokeWidth={1.6}
+  fill={isWishlisted(p.id) ? "#000" : "none"}
+/>
 
-        {products.length > 4 && (
-          <Link href="/products/1" style={viewMore}>
-            View More →
-          </Link>
+                    </button>
+
+                    <img
+                      src={p.images[0]}
+                      alt={p.name}
+                      style={productImg}
+                    />
+                  </div>
+
+                  <div style={productName}>{p.name}</div>
+                  <div style={productPrice}>₹{p.price}</div>
+                </Link>
+              ))}
+            </div>
+
+            {/* VIEW MORE */}
+            <div style={viewMoreWrap}>
+              <Link href="/products/1" style={viewMoreBtn}>
+                View More →
+              </Link>
+            </div>
+          </>
         )}
       </section>
 
@@ -64,17 +93,21 @@ export default function HomePage() {
           src="/brand.mp4"
           muted
           loop
-          playsInline
           autoPlay
-          preload="auto"
+          playsInline
           style={video}
         />
+
+        <p style={brandDesc}>
+          CHUMUNG CLOTHING is a curated thrift fashion brand focused on limited,
+          handpicked pieces. No restocks. No returns.
+        </p>
       </section>
     </main>
   );
 }
 
-/* ================= STYLES ================= */
+/* ================= STYLES (UNCHANGED) ================= */
 
 const categoryWrap = {
   display: "flex",
@@ -119,6 +152,21 @@ const productCard = {
   color: "#000",
 };
 
+const cardWrap = {
+  position: "relative" as const,
+};
+
+const heartBtn = {
+  position: "absolute" as const,
+  top: "10px",
+  right: "10px",
+  background: "rgba(255,255,255,0.9)",
+  border: "none",
+  borderRadius: "50%",
+  padding: "6px",
+  cursor: "pointer",
+};
+
 const productImg = {
   width: "100%",
   height: "200px",
@@ -136,12 +184,19 @@ const productPrice = {
   color: "#666",
 };
 
-const viewMore = {
+const viewMoreWrap = {
+  marginTop: "32px",
+  textAlign: "center" as const,
+};
+
+const viewMoreBtn = {
   display: "inline-block",
-  marginTop: "28px",
+  padding: "12px 22px",
+  borderRadius: "999px",
+  border: "1px solid #000",
+  fontSize: "14px",
   textDecoration: "none",
   color: "#000",
-  fontSize: "14px",
 };
 
 const videoWrap = {
@@ -152,4 +207,15 @@ const videoWrap = {
 const video = {
   width: "100%",
   borderRadius: "16px",
+};
+
+const brandDesc = {
+  marginTop: "24px",
+  maxWidth: "520px",
+  marginLeft: "auto",
+  marginRight: "auto",
+  fontSize: "14px",
+  lineHeight: "1.6",
+  color: "#444",
+  textAlign: "center" as const,
 };

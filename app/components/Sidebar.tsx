@@ -61,6 +61,9 @@ export default function Sidebar({
               <Link href="/terms" style={itemMuted} onClick={onClose}>
                 Terms & Conditions
               </Link>
+
+              <Link href="/admin/categories">Admin Categories</Link>
+
             </div>
           )}
         </nav>

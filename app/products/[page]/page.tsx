@@ -1,64 +1,110 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useProducts } from "@/app/context/ProductContext";
 
+const CATEGORIES = [
+  { key: "all", label: "All", image: "/cat-all.jpg" },
+  { key: "men", label: "Men", image: "/cat-men.jpg" },
+  { key: "women", label: "Women", image: "/cat-women.jpg" },
+  { key: "oversize", label: "Oversize", image: "/cat-oversize.jpg" },
+  { key: "jeans", label: "Jeans", image: "/cat-jeans.jpg" },
+  { key: "jacket", label: "Jacket", image: "/cat-jacket.jpg" },
+];
 
-const PRODUCTS_PER_PAGE = 6;
+const LOAD_COUNT = 6;
 
-export default function ProductsPage({
-  params,
-}: {
-  params: { page: string };
-}) {
+export default function ProductsPage() {
   const { products } = useProducts();
-  const currentPage = Number(params.page) || 1;
+  const [category, setCategory] = useState("all");
+  const [visible, setVisible] = useState(LOAD_COUNT);
 
-  const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const end = start + PRODUCTS_PER_PAGE;
+  const filtered =
+    category === "all"
+      ? products
+      : products.filter(
+          (p) => p.category?.toLowerCase() === category
+        );
 
-  const visible = products.slice(start, end);
-  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
+  const shown = filtered.slice(0, visible);
 
   return (
-    <main style={{ padding: "24px 16px" }}>
-      <h1 style={{ marginBottom: "24px" }}>
-        Products — Page {currentPage}
-      </h1>
-
-      <section style={grid}>
-        {visible.map((p) => (
-          <Link key={p.id} href={`/product/${p.id}`} style={card}>
-            <img src={p.image} style={image} />
-            <p style={name}>{p.name}</p>
-            <p style={price}>₹{p.price}</p>
-          </Link>
+    <main style={{ padding: "16px" }}>
+      {/* CATEGORY STRIP */}
+      <section style={catStrip}>
+        {CATEGORIES.map((c) => (
+          <button
+            key={c.key}
+            onClick={() => {
+              setCategory(c.key);
+              setVisible(LOAD_COUNT);
+            }}
+            style={{
+              ...catCard,
+              opacity: category === c.key ? 1 : 0.6,
+            }}
+          >
+            <img src={c.image} style={catImg} />
+            <span>{c.label}</span>
+          </button>
         ))}
       </section>
 
-      <div style={pagination}>
-        {Array.from({ length: totalPages }).map((_, i) => {
-          const page = i + 1;
-          return (
-            <Link
-              key={page}
-              href={`/products/${page}`}
-              style={{
-                ...pageBtn,
-                background: page === currentPage ? "#000" : "#fff",
-                color: page === currentPage ? "#fff" : "#000",
-              }}
-            >
-              {page}
+      {/* PRODUCTS GRID */}
+      {shown.length === 0 ? (
+        <p style={{ marginTop: "40px", color: "#777" }}>
+          No products found.
+        </p>
+      ) : (
+        <section style={grid}>
+          {shown.map((p) => (
+            <Link key={p.id} href={`/product/${p.id}`} style={card}>
+              <img src={p.images[0]} style={image} />
+              <div style={name}>{p.name}</div>
+              <div style={price}>₹{p.price}</div>
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </section>
+      )}
+
+      {/* LOAD MORE */}
+      {visible < filtered.length && (
+        <button
+          onClick={() => setVisible((v) => v + LOAD_COUNT)}
+          style={loadMore}
+        >
+          View More
+        </button>
+      )}
     </main>
   );
 }
 
 /* ================= STYLES ================= */
+
+const catStrip = {
+  display: "flex",
+  gap: "12px",
+  overflowX: "auto" as const,
+  paddingBottom: "16px",
+};
+
+const catCard = {
+  minWidth: "110px",
+  background: "none",
+  border: "none",
+  textAlign: "center" as const,
+  cursor: "pointer",
+};
+
+const catImg = {
+  width: "100%",
+  height: "80px",
+  objectFit: "cover" as const,
+  borderRadius: "12px",
+  marginBottom: "6px",
+};
 
 const grid = {
   display: "grid",
@@ -88,17 +134,12 @@ const price = {
   color: "#666",
 };
 
-const pagination = {
-  marginTop: "36px",
-  display: "flex",
-  justifyContent: "center",
-  gap: "10px",
-};
-
-const pageBtn = {
-  padding: "8px 12px",
-  border: "1px solid #ddd",
-  textDecoration: "none",
-  borderRadius: "6px",
-  fontSize: "14px",
+const loadMore = {
+  margin: "40px auto",
+  display: "block",
+  padding: "12px 20px",
+  borderRadius: "999px",
+  border: "1px solid #000",
+  background: "#fff",
+  cursor: "pointer",
 };

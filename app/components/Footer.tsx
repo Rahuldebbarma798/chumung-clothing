@@ -18,6 +18,16 @@ export default function Footer() {
           <Link href="/terms" style={link}>Terms & Conditions</Link>
         </div>
 
+        {/* IMAGE IN BETWEEN */}
+  <div style={imageWrap}>
+    <img
+      src="/footer-image.jpg"
+      alt="Chumung visual"
+      style={footerImage}
+    />
+  </div>
+
+
         {/* RIGHT CONTACT */}
         <div style={right}>
           <Link href="/contact" style={contactTitle}>
@@ -148,4 +158,16 @@ const copy = {
   textAlign: "center" as const,
   fontSize: "12px",
   color: "#888",
+};
+
+const imageWrap = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const footerImage = {
+  width: "140px",
+  maxWidth: "100%",
+  borderRadius: "10px",
 };

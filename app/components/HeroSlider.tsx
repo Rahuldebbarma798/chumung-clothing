@@ -1,22 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const slides = [
   {
     id: 1,
     image: "/hero1.jpg",
-    link: "/products/1",
+    link: "/product/12e5566d-d670-4da2-aa90-f42c0a8acb05",
   },
   {
     id: 2,
     image: "/hero2.jpg",
-    link: "/products/2",
+    link: "/men",
   },
   {
     id: 3,
     image: "/hero3.jpg",
-    link: "/men",
+    link: "/product/1694593998765",
   },
 ];
 
@@ -32,61 +33,57 @@ export default function HeroSlider() {
   }, []);
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        paddingTop: "56.25%", // 16:9 ratio
-        overflow: "hidden",
-        borderRadius: "10px",
-        marginBottom: "32px",
-        background: "#e2ddd6",
-      }}
-    >
-      <a
-        href={slides[index].link}
-        style={{
-          position: "absolute",
-          inset: 0,
-        }}
-      >
-        <img
-          src={slides[index].image}
-          alt="Hero"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
-        />
-      </a>
+    <section style={wrap}>
+      <Link href={slides[index].link}>
+        <img src={slides[index].image} style={image} />
+      </Link>
 
       {/* DOTS */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "12px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          gap: "8px",
-        }}
-      >
+      <div style={dots}>
         {slides.map((_, i) => (
           <span
             key={i}
             onClick={() => setIndex(i)}
             style={{
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              background: i === index ? "#fff" : "rgba(255,255,255,0.5)",
-              cursor: "pointer",
+              ...dot,
+              opacity: i === index ? 1 : 0.4,
             }}
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
+
+/* ===== STYLES ===== */
+
+const wrap = {
+  position: "relative" as const,
+  width: "100%",
+  marginBottom: "40px",
+  borderRadius: "18px",
+  overflow: "hidden",
+};
+
+const image = {
+  width: "100%",
+  height: "420px",
+  objectFit: "cover" as const,
+};
+
+const dots = {
+  position: "absolute" as const,
+  bottom: "14px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  display: "flex",
+  gap: "10px",
+};
+
+const dot = {
+  width: "8px",
+  height: "8px",
+  borderRadius: "50%",
+  background: "#fff",
+  cursor: "pointer",
+};

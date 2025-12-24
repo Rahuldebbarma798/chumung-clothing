@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { useProducts } from "@/app/context/ProductContext";
+import { useCategories } from "@/app/context/CategoryContext";
 
 export default function AdminProductsPage() {
   const { addProduct, products, deleteProduct } = useProducts();
+  const { categories } = useCategories();
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [images, setImages] = useState("");
   const [sizes, setSizes] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
   function handleAdd() {
-    if (!name || !price || !images || !sizes) {
-      alert("Fill all fields");
+    if (!name || !price || !images || !sizes || !categoryId) {
+      alert("Fill all fields including category");
       return;
     }
 
@@ -22,19 +25,21 @@ export default function AdminProductsPage() {
       price: Number(price),
       images: images.split(",").map((i) => i.trim()),
       sizes: sizes.split(",").map((s) => s.trim()),
+      category_id: categoryId,
     });
 
     setName("");
     setPrice("");
     setImages("");
     setSizes("");
+    setCategoryId("");
   }
 
   return (
     <main style={{ padding: "24px" }}>
-      <h1>Admin – Products</h1>
+      <h1>Admin — Products</h1>
 
-      {/* ADD PRODUCT */}
+      {/* ADD PRODUCT FORM */}
       <div style={form}>
         <input
           placeholder="Product name"
@@ -51,7 +56,7 @@ export default function AdminProductsPage() {
         />
 
         <input
-          placeholder="Images (comma separated)"
+          placeholder="Images (comma separated URLs)"
           value={images}
           onChange={(e) => setImages(e.target.value)}
           style={input}
@@ -63,6 +68,20 @@ export default function AdminProductsPage() {
           onChange={(e) => setSizes(e.target.value)}
           style={input}
         />
+
+        {/* CATEGORY SELECT */}
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          style={input}
+        >
+          <option value="">Select Category</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
         <button onClick={handleAdd} style={btn}>
           Add Product
@@ -106,6 +125,7 @@ const btn = {
   background: "#000",
   color: "#fff",
   border: "none",
+  cursor: "pointer",
 };
 
 const productRow = {

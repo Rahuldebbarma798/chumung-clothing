@@ -1,21 +1,22 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export type Product = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   images: string[];
-sizes: string[];
-
+  sizes: string[];
+  category_id: string | null;
 };
 
 
 type ProductContextType = {
   products: Product[];
-  addProduct: (p: Omit<Product, "id">) => void;
-  deleteProduct: (id: number) => void;
+  addProduct: (p: Omit<Product, "id">) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
 };
 
 const ProductContext = createContext<ProductContextType | null>(null);
@@ -23,25 +24,34 @@ const ProductContext = createContext<ProductContextType | null>(null);
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
 
+  async function fetchProducts() {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (data) setProducts(data);
+  }
+
+  async function addProduct(p: Omit<Product, "id">) {
+  const { error } = await supabase.from("products").insert([p]);
+
+  if (error) {
+    console.error("Add product failed:", error.message);
+  } else {
+    fetchProducts();
+  }
+}
+
+
+  async function deleteProduct(id: string) {
+    await supabase.from("products").delete().eq("id", id);
+    fetchProducts();
+  }
+
   useEffect(() => {
-    const stored = localStorage.getItem("products");
-    if (stored) setProducts(JSON.parse(stored));
+    fetchProducts();
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
-  }, [products]);
-
-  function addProduct(p: Omit<Product, "id">) {
-    setProducts((prev) => [
-      ...prev,
-      { ...p, id: Date.now() },
-    ]);
-  }
-
-  function deleteProduct(id: number) {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-  }
 
   return (
     <ProductContext.Provider value={{ products, addProduct, deleteProduct }}>

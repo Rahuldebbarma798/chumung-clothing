@@ -1,11 +1,14 @@
 import "./globals.css";
+
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
-import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProductProvider } from "./context/ProductContext";
+import { CartProvider } from "./context/CartContext";
 import { OrderProvider } from "./context/OrderContext";
+import { CategoryProvider } from "./context/CategoryContext";
+import { WishlistProvider } from "./context/WishlistContext";
 
 export const metadata = {
   title: "CHUMUNG CLOTHING",
@@ -21,20 +24,20 @@ export default function RootLayout({
     <html lang="en">
       <body style={body}>
         <AuthProvider>
-          <ProductProvider>
-            <CartProvider>
-              <OrderProvider>
-                <Header />
-
-                <main style={main}>
-                  {children}
-                </main>
-
-                <Footer />
-              </OrderProvider>
-            </CartProvider>
-          </ProductProvider>
-        </AuthProvider>
+  <WishlistProvider>
+    <CategoryProvider>
+      <ProductProvider>
+        <CartProvider>
+          <OrderProvider>
+            <Header />
+            <main style={main}>{children}</main>
+            <Footer />
+          </OrderProvider>
+        </CartProvider>
+      </ProductProvider>
+    </CategoryProvider>
+  </WishlistProvider>
+</AuthProvider>
       </body>
     </html>
   );
