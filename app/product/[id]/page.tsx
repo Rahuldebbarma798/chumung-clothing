@@ -9,7 +9,7 @@ import { useRef } from "react";
 
 export default function ProductPage() {
   const params = useParams();
-  const id = params.id as string;
+  const id = String(params.id);
 
   const { products } = useProducts();
   const { addToCart } = useCart();
@@ -17,13 +17,11 @@ export default function ProductPage() {
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // ⏳ Loading state
   if (products.length === 0) {
     return <p style={{ padding: 24 }}>Loading product…</p>;
   }
 
-  // 🔍 Find product
-  const product = products.find((p) => p.id === id);
+  const product = products.find((p) => String(p.id) === id);
 
   if (!product) {
     return <p style={{ padding: 24 }}>Product not found</p>;
@@ -38,13 +36,16 @@ export default function ProductPage() {
     });
   }
 
+  const price = Number(product.price) || 0;
+  const image = product.images?.[0] || "";
+
   return (
     <main style={page}>
       {/* IMAGE SLIDER */}
       <div ref={sliderRef} style={slider}>
         {product.images.map((img, i) => (
           <div key={i} style={slide}>
-            <img src={img} style={image} />
+            <img src={img} alt={product.name} style={imageStyle} />
           </div>
         ))}
       </div>
@@ -55,6 +56,7 @@ export default function ProductPage() {
           <img
             key={i}
             src={img}
+            alt=""
             style={thumb}
             onClick={() => scrollTo(i)}
           />
@@ -69,32 +71,29 @@ export default function ProductPage() {
           <button
             onClick={() =>
               toggleWishlist({
-                id: product.id,
+                id: String(product.id),
                 name: product.name,
-                image: product.images[0],
-                price: product.price,
+                image,
+                price,
               })
             }
             style={heartBtn}
           >
             <Heart
               size={22}
-              fill={isWishlisted(product.id) ? "black" : "none"}
+              fill={isWishlisted(String(product.id)) ? "#000" : "none"}
             />
           </button>
         </div>
 
-        <p style={price}>₹{product.price}</p>
+        <p style={priceStyle}>₹{price}</p>
 
-        {/* ✅ FIXED ADD TO CART BUTTON */}
         <button
           style={cartBtn}
           onClick={() =>
             addToCart({
-              id: product.id,
+              id: String(product.id),
               name: product.name,
-              image: product.images[0],
-              price: product.price,
             })
           }
         >
@@ -115,7 +114,6 @@ const slider = {
   display: "flex",
   overflowX: "auto" as const,
   scrollSnapType: "x mandatory" as const,
-  scrollbarWidth: "none" as const,
 };
 
 const slide = {
@@ -123,7 +121,7 @@ const slide = {
   scrollSnapAlign: "center" as const,
 };
 
-const image = {
+const imageStyle = {
   width: "100%",
   height: "70vh",
   objectFit: "cover" as const,
@@ -159,7 +157,7 @@ const title = {
   fontWeight: 500,
 };
 
-const price = {
+const priceStyle = {
   fontSize: "18px",
   margin: "12px 0",
 };
