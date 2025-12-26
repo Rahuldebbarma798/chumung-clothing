@@ -24,13 +24,23 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
 
   async function fetchProducts() {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    if (data) setProducts(data);
+  console.log("SUPABASE FETCH:", { data, error });
+
+  if (error) {
+    console.error("Supabase error:", error.message);
+    return;
   }
+
+  if (data) {
+    setProducts(data);
+  }
+}
+
 
   async function addProduct(p: Omit<Product, "id">) {
     const { error } = await supabase.from("products").insert([p]);
