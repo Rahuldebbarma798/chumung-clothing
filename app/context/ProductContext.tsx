@@ -58,8 +58,10 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+  if (typeof window === "undefined") return;
+  fetchProducts();
+}, []);
+
 
   return (
     <ProductContext.Provider
