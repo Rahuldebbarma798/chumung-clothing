@@ -13,16 +13,25 @@ export default function HomePage() {
   return (
     <main>
       {/* CATEGORY STRIP */}
-      <section style={categoryWrap}>
-        <Link href="/men" style={categoryCard}>
-          <img src="/men.jpg" alt="Men" style={categoryImg} />
-          <span>MEN</span>
-        </Link>
+     <section style={categoryWrap}>
+  <Link href="/men" style={categoryCard}>
+    <img
+      src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759568/men_wmitzl.webp"
+      alt="Men"
+      style={categoryImg}
+    />
+    <span style={categoryText}>MEN</span>
+  </Link>
 
-        <Link href="/women" style={categoryCard}>
-          <img src="/women.jpg" alt="Women" style={categoryImg} />
-          <span>WOMEN</span>
-        </Link>
+  <Link href="/women" style={categoryCard}>
+    <img
+      src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759749/women_homepage_susm5r.jpg"
+      alt="Women"
+      style={categoryImg}
+    />
+    <span style={categoryText}>WOMEN</span>
+  </Link>
+
       </section>
 
       {/* HERO */}
@@ -116,20 +125,20 @@ const categoryWrap = {
 };
 
 const categoryCard = {
-  flex: 1,
+  position: "relative" as const,
+  flex: 1,                 // 👈 THIS IS THE KEY
   textDecoration: "none",
-  color: "#000",
   textAlign: "center" as const,
-  fontSize: "13px",
-  letterSpacing: "0.2em",
 };
+
+
 
 const categoryImg = {
   width: "100%",
+  display: "block",
   height: "120px",
   objectFit: "cover" as const,
   borderRadius: "10px",
-  marginBottom: "8px",
 };
 
 const productSection = {
@@ -218,4 +227,16 @@ const brandDesc = {
   lineHeight: "1.6",
   color: "#444",
   textAlign: "center" as const,
+};
+
+const categoryText = {
+  position: "absolute" as const,
+  top: "50%",
+  left: "180px",
+  transform: "translateY(-50%)",
+  color: "#fff",
+  fontSize: "18px",
+  fontWeight: 500,
+  letterSpacing: "0.18em",
+  textShadow: "0 2px 10px rgba(0,0,0,0.45)", // subtle contrast
 };

@@ -18,15 +18,17 @@ export default function Footer() {
           <Link href="/terms" style={link}>Terms & Conditions</Link>
         </div>
 
-        {/* IMAGE IN BETWEEN */}
-  <div style={imageWrap}>
-    <img
-      src="/footer-image.jpg"
-      alt="Chumung visual"
-      style={footerImage}
-    />
-  </div>
+        {/* CENTER IMAGE */}
+        <div style={imageWrap}>
+          <div style={imageWrap}>
+  <img
+    src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759884/footer-image_yufeya.png"
+    alt="Chumung visual"
+    style={footerImage}
+  />
+</div>
 
+        </div>
 
         {/* RIGHT CONTACT */}
         <div style={right}>
@@ -110,10 +112,11 @@ const brand = {
 const content = {
   display: "flex",
   justifyContent: "space-between",
+  alignItems: "center",
   gap: "40px",
   maxWidth: "900px",
   margin: "0 auto 40px",
-  flexWrap: "wrap" as const,
+  flexWrap: "nowrap" as const, // ✅ KEY FIX
 };
 
 const left = {
@@ -122,16 +125,28 @@ const left = {
   gap: "10px",
 };
 
-const link = {
-  textDecoration: "none",
-  color: "#555",
-  fontSize: "13px",
+const imageWrap = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+};
+
+const footerImage = {
+  width: "120px",
+  maxWidth: "100%",
+  borderRadius: "10px",
 };
 
 const right = {
   display: "flex",
   flexDirection: "column" as const,
   gap: "12px",
+};
+
+const link = {
+  textDecoration: "none",
+  color: "#555",
+  fontSize: "13px",
 };
 
 const contactTitle = {
@@ -158,16 +173,4 @@ const copy = {
   textAlign: "center" as const,
   fontSize: "12px",
   color: "#888",
-};
-
-const imageWrap = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const footerImage = {
-  width: "140px",
-  maxWidth: "100%",
-  borderRadius: "10px",
 };

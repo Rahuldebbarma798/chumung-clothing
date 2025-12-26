@@ -9,9 +9,8 @@ export type Product = {
   price: number;
   images: string[];
   sizes: string[];
-  category_id: string | null;
+  category: string | null;
 };
-
 
 type ProductContextType = {
   products: Product[];
@@ -34,15 +33,14 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function addProduct(p: Omit<Product, "id">) {
-  const { error } = await supabase.from("products").insert([p]);
+    const { error } = await supabase.from("products").insert([p]);
 
-  if (error) {
-    console.error("Add product failed:", error.message);
-  } else {
-    fetchProducts();
+    if (error) {
+      console.error("Add product failed:", error.message);
+    } else {
+      fetchProducts();
+    }
   }
-}
-
 
   async function deleteProduct(id: string) {
     await supabase.from("products").delete().eq("id", id);
@@ -54,7 +52,9 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, deleteProduct }}>
+    <ProductContext.Provider
+      value={{ products, addProduct, deleteProduct }}
+    >
       {children}
     </ProductContext.Provider>
   );

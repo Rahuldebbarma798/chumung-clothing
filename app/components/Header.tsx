@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import { useCart } from "../context/CartContext";
 import { Search, Heart, ShoppingBag, User, Menu } from "lucide-react";
@@ -11,7 +11,9 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [query, setQuery] = useState("");
+
   const pathname = usePathname();
+  const router = useRouter();
   const { cart } = useCart();
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -21,12 +23,20 @@ export default function Header() {
     setShowSearch(false);
   }, [pathname]);
 
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    router.push(`/products/1?q=${encodeURIComponent(query)}`);
+    setQuery("");
+    setShowSearch(false);
+  }
+
   return (
     <>
       <header style={header}>
         <button style={menuBtn} onClick={() => setOpen(true)}>
           <Menu size={22} strokeWidth={1.6} />
-
         </button>
 
         <Link href="/" style={brand}>
@@ -36,29 +46,25 @@ export default function Header() {
         <div style={icons}>
           <button style={iconBtn} onClick={() => setShowSearch((s) => !s)}>
             <Search size={20} strokeWidth={1.6} />
-
           </button>
 
           <Link href="/wishlist" style={icon}>
             <Heart size={20} strokeWidth={1.6} />
-
           </Link>
 
           <Link href="/cart" style={cartIconWrap}>
             <ShoppingBag size={20} strokeWidth={1.6} />
-
             {cartCount > 0 && <span style={badge}>{cartCount}</span>}
           </Link>
 
           <Link href="/account" style={icon}>
             <User size={20} strokeWidth={1.6} />
-
           </Link>
         </div>
       </header>
 
       {showSearch && (
-        <div style={searchBar}>
+        <form style={searchBar} onSubmit={handleSearch}>
           <input
             autoFocus
             placeholder="Search products..."
@@ -66,7 +72,7 @@ export default function Header() {
             onChange={(e) => setQuery(e.target.value)}
             style={searchInput}
           />
-        </div>
+        </form>
       )}
 
       <Sidebar open={open} onClose={() => setOpen(false)} />

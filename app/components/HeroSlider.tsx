@@ -2,21 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
 const slides = [
   {
     id: 1,
-    image: "/hero1.jpg",
+    image: "https://res.cloudinary.com/chumungcloud/image/upload/v1766759878/hero1_pelini.webp",
     link: "/product/12e5566d-d670-4da2-aa90-f42c0a8acb05",
   },
   {
     id: 2,
-    image: "/hero2.jpg",
+    image: "https://res.cloudinary.com/chumungcloud/image/upload/v1766760697/hero33_xpxzuo.jpg",
     link: "/men",
   },
   {
     id: 3,
-    image: "/hero3.jpg",
+    image: "https://res.cloudinary.com/chumungcloud/image/upload/v1766759780/hero2_yyy5kj.jpg",
     link: "/product/1694593998765",
   },
 ];

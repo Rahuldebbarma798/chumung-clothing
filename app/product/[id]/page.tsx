@@ -3,29 +3,51 @@
 import { useParams } from "next/navigation";
 import { useProducts } from "@/app/context/ProductContext";
 import { useCart } from "@/app/context/CartContext";
-import { useAuth } from "@/app/context/AuthContext";
-import { useState } from "react";
+import { useWishlist } from "@/app/context/WishlistContext";
+import { Heart } from "lucide-react";
+import { useRef } from "react";
 
 export default function ProductPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params.id as string;
+
   const { products } = useProducts();
   const { addToCart } = useCart();
-  const { loggedIn } = useAuth();
+  const { toggleWishlist, isWishlisted } = useWishlist();
 
-  const product = products.find(p => String(p.id) === id);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
-  const [activeImage, setActiveImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  // ⏳ Loading state
+  if (products.length === 0) {
+    return <p style={{ padding: 24 }}>Loading product…</p>;
+  }
 
-  if (!product) return <p style={{ padding: "20px" }}>Product not found.</p>;
+  // 🔍 Find product
+  const product = products.find((p) => p.id === id);
+
+  if (!product) {
+    return <p style={{ padding: 24 }}>Product not found</p>;
+  }
+
+  function scrollTo(index: number) {
+    if (!sliderRef.current) return;
+    const width = sliderRef.current.clientWidth;
+    sliderRef.current.scrollTo({
+      left: width * index,
+      behavior: "smooth",
+    });
+  }
 
   return (
-    <main style={{ padding: "24px 16px" }}>
-      {/* IMAGE */}
-      <img
-        src={product.images[activeImage]}
-        style={mainImage}
-      />
+    <main style={page}>
+      {/* IMAGE SLIDER */}
+      <div ref={sliderRef} style={slider}>
+        {product.images.map((img, i) => (
+          <div key={i} style={slide}>
+            <img src={img} style={image} />
+          </div>
+        ))}
+      </div>
 
       {/* THUMBNAILS */}
       <div style={thumbRow}>
@@ -33,122 +55,127 @@ export default function ProductPage() {
           <img
             key={i}
             src={img}
-            style={{
-              ...thumb,
-              border: i === activeImage ? "2px solid #000" : "1px solid #ddd",
-            }}
-            onClick={() => setActiveImage(i)}
+            style={thumb}
+            onClick={() => scrollTo(i)}
           />
         ))}
       </div>
 
-      <h1 style={{ marginTop: "20px" }}>{product.name}</h1>
-      <p style={{ fontSize: "18px" }}>₹{product.price}</p>
+      {/* PRODUCT INFO */}
+      <div style={info}>
+        <div style={topRow}>
+          <h1 style={title}>{product.name}</h1>
 
-      {/* SIZE SELECT */}
-      <div style={{ marginTop: "20px" }}>
-        <strong>Select Size</strong>
-
-        <div style={sizeRow}>
-          {product.sizes.map(size => (
-            <button
-              key={size}
-              onClick={() => setSelectedSize(size)}
-              style={{
-                ...sizeBtn,
-                border: selectedSize === size ? "2px solid #000" : "1px solid #ddd",
-              }}
-            >
-              {size}
-            </button>
-          ))}
+          <button
+            onClick={() =>
+              toggleWishlist({
+                id: product.id,
+                name: product.name,
+                image: product.images[0],
+                price: product.price,
+              })
+            }
+            style={heartBtn}
+          >
+            <Heart
+              size={22}
+              fill={isWishlisted(product.id) ? "black" : "none"}
+            />
+          </button>
         </div>
+
+        <p style={price}>₹{product.price}</p>
+
+        {/* ✅ FIXED ADD TO CART BUTTON */}
+        <button
+          style={cartBtn}
+          onClick={() =>
+            addToCart({
+              id: product.id,
+              name: product.name,
+              image: product.images[0],
+              price: product.price,
+            })
+          }
+        >
+          Add to Cart
+        </button>
       </div>
-
-      <button
-        style={{
-          ...btn,
-          opacity: selectedSize ? 1 : 0.5,
-        }}
-        onClick={() => {
-          if (!loggedIn) {
-            alert("Please login to add to cart");
-            return;
-          }
-          if (!selectedSize) {
-            alert("Please select a size");
-            return;
-          }
-
-          addToCart({
-            id: product.id,
-            name: product.name,
-            quantity: 1,
-            size: selectedSize,
-          });
-        }}
-      >
-        Add to Cart
-      </button>
-
-      <p style={note}>No returns. All sales final.</p>
     </main>
   );
 }
 
 /* ================= STYLES ================= */
 
-const mainImage = {
-  width: "100%",
-  maxHeight: "520px",
-  objectFit: "contain" as const,
-  borderRadius: "16px",
-  background: "#f5f5f5",
+const page = {
+  paddingBottom: "80px",
 };
 
+const slider = {
+  display: "flex",
+  overflowX: "auto" as const,
+  scrollSnapType: "x mandatory" as const,
+  scrollbarWidth: "none" as const,
+};
 
+const slide = {
+  minWidth: "100%",
+  scrollSnapAlign: "center" as const,
+};
+
+const image = {
+  width: "100%",
+  height: "70vh",
+  objectFit: "cover" as const,
+};
 
 const thumbRow = {
   display: "flex",
   gap: "10px",
-  marginTop: "12px",
+  padding: "12px",
+  overflowX: "auto" as const,
 };
 
 const thumb = {
-  width: "64px",
-  height: "64px",
-  objectFit: "contain" as const,
-  borderRadius: "8px",
+  width: "70px",
+  height: "70px",
+  objectFit: "cover" as const,
+  borderRadius: "10px",
   cursor: "pointer",
-  background: "#f5f5f5",
 };
 
+const info = {
+  padding: "16px",
+};
 
-const sizeRow = {
+const topRow = {
   display: "flex",
-  gap: "10px",
-  marginTop: "10px",
+  justifyContent: "space-between",
+  alignItems: "center",
 };
 
-const sizeBtn = {
-  padding: "8px 14px",
-  background: "#fff",
-  borderRadius: "8px",
-  cursor: "pointer",
+const title = {
+  fontSize: "20px",
+  fontWeight: 500,
 };
 
-const btn = {
-  marginTop: "24px",
-  padding: "14px",
+const price = {
+  fontSize: "18px",
+  margin: "12px 0",
+};
+
+const cartBtn = {
   width: "100%",
+  padding: "14px",
   background: "#000",
   color: "#fff",
   border: "none",
-  borderRadius: "10px",
+  borderRadius: "12px",
+  fontSize: "15px",
 };
 
-const note = {
-  marginTop: "18px",
-  fontSize: "13px",
-  color: "#777",
+const heartBtn = {
+  background: "none",
+  border: "none",
+  cursor: "pointer",
 };
