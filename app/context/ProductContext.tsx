@@ -58,9 +58,16 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-  if (typeof window === "undefined") return;
+  let mounted = true;
+  if (!mounted) return;
+
   fetchProducts();
+
+  return () => {
+    mounted = false;
+  };
 }, []);
+
 
 
   return (
