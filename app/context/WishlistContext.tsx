@@ -3,16 +3,17 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 export type WishlistItem = {
-  id: number;
+  id: string;
   name: string;
   image: string;
   price: number;
 };
 
+
 type WishlistContextType = {
   wishlist: WishlistItem[];
   toggleWishlist: (item: WishlistItem) => void;
-  isWishlisted: (id: number) => boolean;
+isWishlisted: (id: string) => boolean;
 };
 
 const WishlistContext = createContext<WishlistContextType | null>(null);
@@ -39,7 +40,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  function isWishlisted(id: number) {
+function isWishlisted(id: string) {
     return wishlist.some((p) => p.id === id);
   }
 
