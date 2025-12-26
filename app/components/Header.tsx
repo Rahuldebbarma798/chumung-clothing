@@ -16,7 +16,10 @@ export default function Header() {
   const router = useRouter();
   const { cart } = useCart();
 
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+const cartCount = cart.reduce(
+  (sum, item) => sum + (Number(item.quantity) || 0),
+  0
+);
 
   useEffect(() => {
     setOpen(false);

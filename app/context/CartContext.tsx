@@ -1,12 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
-export type CartItem = {
+type CartItem = {
   id: string;
   name: string;
-  image: string;
-  price: number;
   quantity: number;
 };
 
@@ -23,13 +21,24 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  /* Load from localStorage */
+  // 🔥 FIX OLD / BROKEN LOCALSTORAGE DATA
   useEffect(() => {
     const stored = localStorage.getItem("cart");
-    if (stored) setCart(JSON.parse(stored));
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        const cleaned = parsed.map((item: any) => ({
+          id: String(item.id),
+          name: String(item.name),
+          quantity: Number(item.quantity) || 1,
+        }));
+        setCart(cleaned);
+      } catch {
+        setCart([]);
+      }
+    }
   }, []);
 
-  /* Persist to localStorage */
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
@@ -37,7 +46,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   function addToCart(item: Omit<CartItem, "quantity">) {
     setCart((prev) => {
       const existing = prev.find((p) => p.id === item.id);
-
       if (existing) {
         return prev.map((p) =>
           p.id === item.id
@@ -45,7 +53,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             : p
         );
       }
-
       return [...prev, { ...item, quantity: 1 }];
     });
   }

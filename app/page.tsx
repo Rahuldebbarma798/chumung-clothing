@@ -13,25 +13,24 @@ export default function HomePage() {
   return (
     <main>
       {/* CATEGORY STRIP */}
-     <section style={categoryWrap}>
-  <Link href="/men" style={categoryCard}>
-    <img
-      src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759568/men_wmitzl.webp"
-      alt="Men"
-      style={categoryImg}
-    />
-    <span style={categoryText}>MEN</span>
-  </Link>
+      <section style={categoryWrap}>
+        <Link href="/men" style={categoryCard}>
+          <img
+            src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759568/men_wmitzl.webp"
+            alt="Men"
+            style={categoryImg}
+          />
+          <span style={categoryText}>MEN</span>
+        </Link>
 
-  <Link href="/women" style={categoryCard}>
-    <img
-      src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759749/women_homepage_susm5r.jpg"
-      alt="Women"
-      style={categoryImg}
-    />
-    <span style={categoryText}>WOMEN</span>
-  </Link>
-
+        <Link href="/women" style={categoryCard}>
+          <img
+            src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759749/women_homepage_susm5r.jpg"
+            alt="Women"
+            style={categoryImg}
+          />
+          <span style={categoryText}>WOMEN</span>
+        </Link>
       </section>
 
       {/* HERO */}
@@ -46,44 +45,50 @@ export default function HomePage() {
         ) : (
           <>
             <div style={productGrid}>
-              {products.slice(0, 6).map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/product/${p.id}`}
-                  style={productCard}
-                >
-                  <div style={cardWrap}>
-                    <button
-                      style={heartBtn}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleWishlist({
-                          id: p.id,
-                          name: p.name,
-                          image: p.images[0],
-                          price: p.price,
-                        });
-                      }}
-                    >
-                      <Heart
-  size={18}
-  strokeWidth={1.6}
-  fill={isWishlisted(p.id) ? "#000" : "none"}
-/>
+              {products.slice(0, 6).map((p) => {
+                const price = Number(p.price) || 0;
+                const image = p.images?.[0] || "";
 
-                    </button>
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/product/${p.id}`}
+                    style={productCard}
+                  >
+                    <div style={cardWrap}>
+                      <button
+                        style={heartBtn}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleWishlist({
+                            id: String(p.id),
+                            name: p.name,
+                            image,
+                            price,
+                          });
+                        }}
+                      >
+                        <Heart
+                          size={18}
+                          strokeWidth={1.6}
+                          fill={isWishlisted(String(p.id)) ? "#000" : "none"}
+                        />
+                      </button>
 
-                    <img
-                      src={p.images[0]}
-                      alt={p.name}
-                      style={productImg}
-                    />
-                  </div>
+                      {image && (
+                        <img
+                          src={image}
+                          alt={p.name}
+                          style={productImg}
+                        />
+                      )}
+                    </div>
 
-                  <div style={productName}>{p.name}</div>
-                  <div style={productPrice}>₹{p.price}</div>
-                </Link>
-              ))}
+                    <div style={productName}>{p.name}</div>
+                    <div style={productPrice}>₹{price}</div>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* VIEW MORE */}
@@ -116,7 +121,7 @@ export default function HomePage() {
   );
 }
 
-/* ================= STYLES (UNCHANGED) ================= */
+/* ================= STYLES ================= */
 
 const categoryWrap = {
   display: "flex",
@@ -126,19 +131,27 @@ const categoryWrap = {
 
 const categoryCard = {
   position: "relative" as const,
-  flex: 1,                 // 👈 THIS IS THE KEY
+  flex: 1,
   textDecoration: "none",
-  textAlign: "center" as const,
 };
-
-
 
 const categoryImg = {
   width: "100%",
-  display: "block",
   height: "120px",
   objectFit: "cover" as const,
   borderRadius: "10px",
+};
+
+const categoryText = {
+  position: "absolute" as const,
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  color: "#fff",
+  fontSize: "16px",
+  fontWeight: 500,
+  letterSpacing: "0.2em",
+  textShadow: "0 2px 10px rgba(0,0,0,0.45)",
 };
 
 const productSection = {
@@ -227,16 +240,4 @@ const brandDesc = {
   lineHeight: "1.6",
   color: "#444",
   textAlign: "center" as const,
-};
-
-const categoryText = {
-  position: "absolute" as const,
-  top: "50%",
-  left: "180px",
-  transform: "translateY(-50%)",
-  color: "#fff",
-  fontSize: "18px",
-  fontWeight: 500,
-  letterSpacing: "0.18em",
-  textShadow: "0 2px 10px rgba(0,0,0,0.45)", // subtle contrast
 };

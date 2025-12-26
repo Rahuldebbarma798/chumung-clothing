@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export type WishlistItem = {
   id: string;
@@ -9,11 +9,10 @@ export type WishlistItem = {
   price: number;
 };
 
-
 type WishlistContextType = {
   wishlist: WishlistItem[];
   toggleWishlist: (item: WishlistItem) => void;
-isWishlisted: (id: string) => boolean;
+  isWishlisted: (id: string) => boolean;
 };
 
 const WishlistContext = createContext<WishlistContextType | null>(null);
@@ -40,14 +39,12 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-function isWishlisted(id: string) {
+  function isWishlisted(id: string) {
     return wishlist.some((p) => p.id === id);
   }
 
   return (
-    <WishlistContext.Provider
-      value={{ wishlist, toggleWishlist, isWishlisted }}
-    >
+    <WishlistContext.Provider value={{ wishlist, toggleWishlist, isWishlisted }}>
       {children}
     </WishlistContext.Provider>
   );
