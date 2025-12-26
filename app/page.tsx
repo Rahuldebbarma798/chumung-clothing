@@ -46,32 +46,29 @@ export default function HomePage() {
           <>
             <div style={productGrid}>
               {products.slice(0, 6).map((p) => {
-                const price = Number(p.price) || 0;
+                const id = String(p.id);              // ✅ FORCE STRING
+                const price = Number(p.price) || 0;  // ✅ FORCE NUMBER
                 const image = p.images?.[0] || "";
 
                 return (
-                  <Link
-                    key={p.id}
-                    href={`/product/${p.id}`}
-                    style={productCard}
-                  >
+                  <Link key={id} href={`/product/${id}`} style={productCard}>
                     <div style={cardWrap}>
                       <button
                         style={heartBtn}
                         onClick={(e) => {
                           e.preventDefault();
                           toggleWishlist({
-                            id: String(p.id),
+                            id,           // ✅ string
                             name: p.name,
                             image,
-                            price,
+                            price,        // ✅ number
                           });
                         }}
                       >
                         <Heart
                           size={18}
                           strokeWidth={1.6}
-                          fill={isWishlisted(String(p.id)) ? "#000" : "none"}
+                          fill={isWishlisted(id) ? "#000" : "none"}
                         />
                       </button>
 
@@ -91,7 +88,6 @@ export default function HomePage() {
               })}
             </div>
 
-            {/* VIEW MORE */}
             <div style={viewMoreWrap}>
               <Link href="/products/1" style={viewMoreBtn}>
                 View More →
