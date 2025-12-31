@@ -1,53 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useCart } from "../context/CartContext";
-import { useProducts } from "../context/ProductContext";
+import { useCart } from "@/app/context/CartContext";
 
 export default function CartPage() {
   const { cart, increase, decrease, remove } = useCart();
-  const { products } = useProducts();
 
-  // 🔒 SAFE MERGE CART + PRODUCT DATA
-  const cartItems = cart.map((item) => {
-    const product = products.find((p) => p.id === item.id);
-
-    const price = Number(product?.price) || 0;
-    const quantity = Number(item.quantity) || 1;
-
-    return {
-      id: item.id,
-      name: item.name,
-      quantity,
-      price,
-      image: product?.images?.[0] || "",
-      subtotal: price * quantity,
-    };
-  });
-
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.subtotal,
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
 
   return (
-    <main style={wrap}>
+    <main style={page}>
       <h1 style={title}>Your Cart</h1>
 
-      {cartItems.length === 0 ? (
-        <p style={empty}>Your cart is empty.</p>
+      {cart.length === 0 ? (
+        <p style={{ color: "#777" }}>
+          Your cart is empty.{" "}
+          <Link href="/" style={{ textDecoration: "underline" }}>
+            Continue shopping
+          </Link>
+        </p>
       ) : (
         <>
+          {/* CART ITEMS */}
           <div style={list}>
-            {cartItems.map((item) => (
+            {cart.map((item) => (
               <div key={item.id} style={row}>
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={image}
-                  />
-                )}
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={image}
+                />
 
                 <div style={info}>
                   <div style={name}>{item.name}</div>
@@ -55,44 +40,58 @@ export default function CartPage() {
 
                   <div style={qtyRow}>
                     <button
-                      onClick={() => decrease(item.id)}
                       style={qtyBtn}
+                      onClick={() => decrease(item.id)}
                     >
                       −
                     </button>
-
-                    <span>{item.quantity}</span>
-
+                    <span style={qty}>{item.quantity}</span>
                     <button
-                      onClick={() => increase(item.id)}
                       style={qtyBtn}
+                      onClick={() => increase(item.id)}
                     >
                       +
                     </button>
                   </div>
                 </div>
 
-                <div style={right}>
-                  <div style={subtotal}>₹{item.subtotal}</div>
-                  <button
-                    onClick={() => remove(item.id)}
-                    style={removeBtn}
-                  >
-                    Remove
-                  </button>
-                </div>
+                <button
+                  style={removeBtn}
+                  onClick={() => remove(item.id)}
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>
 
-          <div style={summary}>
-            <span>Total</span>
-            <strong>₹{total}</strong>
+          {/* ORDER SUMMARY */}
+          <div style={orderSummary}>
+            <h3 style={summaryTitle}>Order Summary</h3>
+
+            {cart.map((item) => (
+              <div key={item.id} style={summaryItem}>
+                <span>
+                  {item.name} × {item.quantity}
+                </span>
+                <span>₹{item.price * item.quantity}</span>
+              </div>
+            ))}
+
+            <div style={summaryDivider} />
+
+            <div style={summaryItem}>
+              <strong>Subtotal</strong>
+              <strong>₹{total}</strong>
+            </div>
           </div>
 
-          <Link href="/checkout" style={checkoutBtn}>
-            Proceed to Checkout
-          </Link>
+          {/* CHECKOUT */}
+          <div style={checkoutWrap}>
+            <Link href="/checkout" style={checkoutBtn}>
+              Proceed to Checkout →
+            </Link>
+          </div>
         </>
       )}
     </main>
@@ -101,40 +100,40 @@ export default function CartPage() {
 
 /* ================= STYLES ================= */
 
-const wrap = {
-  padding: "24px 16px",
+const page = {
+  padding: "32px 16px",
   maxWidth: "900px",
   margin: "0 auto",
 };
 
 const title = {
   fontSize: "22px",
-  marginBottom: "24px",
-};
-
-const empty = {
-  color: "#777",
+  fontWeight: 600,
+  marginBottom: "28px",
+  textAlign: "left" as const,
 };
 
 const list = {
   display: "flex",
   flexDirection: "column" as const,
-  gap: "16px",
+  gap: "18px",
 };
 
 const row = {
   display: "flex",
-  gap: "14px",
-  borderBottom: "1px solid #eee",
-  paddingBottom: "16px",
-  alignItems: "flex-start",
+  gap: "16px",
+  padding: "16px",
+  borderRadius: "18px",
+  border: "1px solid #eee",
+  background: "#fafafa",
+  alignItems: "center",
 };
 
 const image = {
   width: "90px",
   height: "120px",
   objectFit: "cover" as const,
-  borderRadius: "10px",
+  borderRadius: "14px",
 };
 
 const info = {
@@ -142,64 +141,82 @@ const info = {
 };
 
 const name = {
-  fontSize: "14px",
+  fontSize: "15px",
   fontWeight: 500,
+  marginBottom: "4px",
 };
 
 const price = {
   fontSize: "13px",
   color: "#666",
-  marginTop: "4px",
+  marginBottom: "10px",
 };
 
 const qtyRow = {
   display: "flex",
   alignItems: "center",
   gap: "10px",
-  marginTop: "10px",
 };
 
 const qtyBtn = {
   width: "28px",
   height: "28px",
   borderRadius: "50%",
-  border: "1px solid #ccc",
+  border: "1px solid #ddd",
   background: "#fff",
   cursor: "pointer",
 };
 
-const right = {
-  textAlign: "right" as const,
-};
-
-const subtotal = {
+const qty = {
   fontSize: "14px",
-  fontWeight: 500,
 };
 
 const removeBtn = {
-  marginTop: "8px",
-  fontSize: "12px",
   background: "none",
   border: "none",
-  color: "#999",
+  color: "#ff3b30",
+  fontSize: "13px",
   cursor: "pointer",
 };
 
-const summary = {
+const orderSummary = {
+  marginTop: "32px",
+  padding: "20px",
+  borderRadius: "16px",
+  border: "1px solid #eee",
+  background: "#fff",
+};
+
+const summaryTitle = {
+  fontSize: "15px",
+  fontWeight: 500,
+  marginBottom: "14px",
+};
+
+const summaryItem = {
   display: "flex",
   justifyContent: "space-between",
-  marginTop: "24px",
-  fontSize: "16px",
+  fontSize: "14px",
+  marginBottom: "8px",
+};
+
+const summaryDivider = {
+  height: "1px",
+  background: "#eee",
+  margin: "12px 0",
+};
+
+const checkoutWrap = {
+  marginTop: "28px",
 };
 
 const checkoutBtn = {
   display: "block",
-  marginTop: "24px",
-  padding: "14px",
   textAlign: "center" as const,
+  padding: "16px",
+  borderRadius: "999px",
   background: "#000",
   color: "#fff",
-  borderRadius: "12px",
   textDecoration: "none",
+  fontSize: "15px",
 };

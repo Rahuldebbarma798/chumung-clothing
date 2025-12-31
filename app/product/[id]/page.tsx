@@ -89,16 +89,19 @@ export default function ProductPage() {
         <p style={priceStyle}>₹{price}</p>
 
         <button
-          style={cartBtn}
-          onClick={() =>
-            addToCart({
-              id: String(product.id),
-              name: product.name,
-            })
-          }
-        >
-          Add to Cart
-        </button>
+  style={cartBtn}
+  onClick={() =>
+    addToCart({
+      id: product.id,                 // string UUID
+      name: product.name,
+      image: product.images[0],        // ✅ REQUIRED
+      price: product.price,            // ✅ REQUIRED
+    })
+  }
+>
+  Add to Cart
+</button>
+
       </div>
     </main>
   );

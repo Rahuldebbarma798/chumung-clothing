@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import { useCart } from "../context/CartContext";
@@ -16,15 +16,33 @@ export default function Header() {
   const router = useRouter();
   const { cart } = useCart();
 
-const cartCount = cart.reduce(
-  (sum, item) => sum + (Number(item.quantity) || 0),
-  0
-);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const cartCount = cart.reduce(
+    (sum, item) => sum + (Number(item.quantity) || 0),
+    0
+  );
 
   useEffect(() => {
     setOpen(false);
     setShowSearch(false);
   }, [pathname]);
+
+  // ✅ CLOSE SEARCH WHEN CLICKING OUTSIDE
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        showSearch &&
+        searchRef.current &&
+        !searchRef.current.contains(e.target as Node)
+      ) {
+        setShowSearch(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showSearch]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -47,7 +65,10 @@ const cartCount = cart.reduce(
         </Link>
 
         <div style={icons}>
-          <button style={iconBtn} onClick={() => setShowSearch((s) => !s)}>
+          <button
+            style={iconBtn}
+            onClick={() => setShowSearch((s) => !s)}
+          >
             <Search size={20} strokeWidth={1.6} />
           </button>
 
@@ -66,16 +87,19 @@ const cartCount = cart.reduce(
         </div>
       </header>
 
+      {/* 🔍 SEARCH BAR */}
       {showSearch && (
-        <form style={searchBar} onSubmit={handleSearch}>
-          <input
-            autoFocus
-            placeholder="Search products..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            style={searchInput}
-          />
-        </form>
+        <div ref={searchRef}>
+          <form style={searchBar} onSubmit={handleSearch}>
+            <input
+              autoFocus
+              placeholder="Search products..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              style={searchInput}
+            />
+          </form>
+        </div>
       )}
 
       <Sidebar open={open} onClose={() => setOpen(false)} />

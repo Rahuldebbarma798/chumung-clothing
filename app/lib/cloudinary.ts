@@ -1,4 +1,4 @@
-export async function uploadToCloudinary(file: File) {
+export async function uploadToCloudinary(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append(
@@ -19,5 +19,7 @@ export async function uploadToCloudinary(file: File) {
   }
 
   const data = await res.json();
-  return data.secure_url as string;
+
+  // ✅ THIS IS THE IMAGE URL YOU NEED
+  return data.secure_url;
 }
