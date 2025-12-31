@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useProducts } from "@/app/context/ProductContext";
 import { useCategories } from "@/app/context/CategoryContext";
+import { uploadToCloudinary } from "@/app/lib/cloudinary";
 
 export default function AdminProductsPage() {
   const { addProduct, deleteProduct, products } = useProducts();
@@ -21,32 +22,6 @@ export default function AdminProductsPage() {
     setImages(Array.from(e.target.files));
   }
 
-  async function uploadToCloudinary(files: File[]) {
-    const urls: string[] = [];
-
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append(
-        "upload_preset",
-        process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
-      );
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-      urls.push(data.secure_url);
-    }
-
-    return urls;
-  }
-
   async function handleSubmit() {
     setError("");
 
@@ -58,12 +33,18 @@ export default function AdminProductsPage() {
     try {
       setLoading(true);
 
-      const uploadedImages = await uploadToCloudinary(images);
+      // 🔥 UPLOAD TO CLOUDINARY (AUTOMATIC)
+      const uploadedImages: string[] = [];
+
+      for (const file of images) {
+        const url = await uploadToCloudinary(file);
+        uploadedImages.push(url);
+      }
 
       await addProduct({
         name,
         price: Number(price),
-        images: uploadedImages,
+        images: uploadedImages, // ✅ FULL CLOUDINARY URLS
         sizes: [],
         category,
       });
@@ -72,7 +53,8 @@ export default function AdminProductsPage() {
       setPrice("");
       setCategory("");
       setImages([]);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Failed to save product");
     } finally {
       setLoading(false);
@@ -90,7 +72,7 @@ export default function AdminProductsPage() {
 
       {/* ADD PRODUCT */}
       <section style={card}>
-        <h3>Add Product</h3>
+        <h3 style={{ marginBottom: 12 }}>Add Product</h3>
 
         <input
           placeholder="Product name"
@@ -128,12 +110,14 @@ export default function AdminProductsPage() {
           style={{ marginBottom: 12 }}
         />
 
+        {/* IMAGE PREVIEW */}
         {images.length > 0 && (
           <div style={previewGrid}>
             {images.map((img, i) => (
               <img
                 key={i}
                 src={URL.createObjectURL(img)}
+                alt="preview"
                 style={previewImg}
               />
             ))}
@@ -157,16 +141,19 @@ export default function AdminProductsPage() {
           <div style={list}>
             {products.map((p) => (
               <div key={p.id} style={row}>
-                {/* CLICKABLE PRODUCT */}
                 <Link
-                  href={`/product/${p.id}`}   // ✅ UUID LINK
+                  href={`/product/${p.id}`}
                   style={productLink}
                 >
-                  <img src={p.images?.[0]} style={thumb} />
+                  <img
+                    src={p.images?.[0] || "/placeholder.jpg"}
+                    alt={p.name}
+                    style={thumb}
+                  />
                   <div>
                     <div style={{ fontWeight: 500 }}>{p.name}</div>
                     <div style={{ fontSize: 12, color: "#777" }}>
-                      ₹{p.price} · {p.category}
+                      ₹{p.price}
                     </div>
                   </div>
                 </Link>
