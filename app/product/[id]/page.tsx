@@ -16,73 +16,56 @@ export default function ProductPage() {
   const { toggleWishlist, isWishlisted } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState("");
-  const [activeImage, setActiveImage] = useState(0);
   const [added, setAdded] = useState(false);
 
   if (products.length === 0) {
     return <p style={{ padding: 24 }}>Loading product…</p>;
   }
 
-  const product = products.find((p) => p.id === id);
+  const found = products.find((p) => p.id === id);
 
-  if (!product) {
+  if (!found) {
     return <p style={{ padding: 24 }}>Product not found</p>;
   }
 
-  function handleAddToCart() {
-    if (!selectedSize) {
-      alert("Please select a size");
-      return;
-    }
+  const product = found; // ✅ TS-safe
 
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images[0],
-      size: selectedSize,
-    });
-
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+function handleAddToCart() {
+  if (product.sizes.length > 0 && !selectedSize) {
+    alert("Please select a size");
+    return;
   }
+
+  addToCart({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    image: product.images[0],
+    size: selectedSize, // ✅ ALWAYS string
+  });
+
+  setAdded(true);
+  setTimeout(() => setAdded(false), 1500);
+}
+
 
   return (
     <main style={page}>
-      {/* MAIN IMAGE */}
+      {/* PRODUCT IMAGE */}
       <div style={imageWrap}>
         <img
-          src={optimizeCloudinary(product.images[activeImage], 900)}
-          style={mainImage}
+          src={optimizeCloudinary(product.images[0], 900)}
+          alt={product.name}
+          style={image}
         />
       </div>
-
-      {/* THUMBNAILS */}
-      {product.images.length > 1 && (
-        <div style={thumbRow}>
-          {product.images.map((img, i) => (
-            <img
-              key={i}
-              src={optimizeCloudinary(img, 150)}
-              style={{
-                ...thumb,
-                border:
-                  activeImage === i
-                    ? "2px solid #000"
-                    : "1px solid #ddd",
-              }}
-              onClick={() => setActiveImage(i)}
-            />
-          ))}
-        </div>
-      )}
 
       {/* PRODUCT INFO */}
       <div style={info}>
         <div style={topRow}>
           <h1 style={title}>{product.name}</h1>
+
           <button
-            style={heartBtn}
             onClick={() =>
               toggleWishlist({
                 id: product.id,
@@ -91,6 +74,7 @@ export default function ProductPage() {
                 price: product.price,
               })
             }
+            style={heartBtn}
           >
             <Heart
               size={22}
@@ -122,15 +106,8 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* ADD TO CART */}
-        <button
-          style={{
-            ...cartBtn,
-            background: added ? "#2ecc71" : "#000",
-          }}
-          onClick={handleAddToCart}
-        >
-          {added ? "Added ✓" : "Add to Cart"}
+        <button style={cartBtn} onClick={handleAddToCart}>
+          {added ? "✓ Added to Cart" : "Add to Cart"}
         </button>
       </div>
     </main>
@@ -147,24 +124,10 @@ const imageWrap = {
   width: "100%",
 };
 
-const mainImage = {
+const image = {
   width: "100%",
   height: "70vh",
   objectFit: "cover" as const,
-};
-
-const thumbRow = {
-  display: "flex",
-  gap: "10px",
-  padding: "12px",
-};
-
-const thumb = {
-  width: "70px",
-  height: "70px",
-  objectFit: "cover" as const,
-  borderRadius: "10px",
-  cursor: "pointer",
 };
 
 const info = {
@@ -205,6 +168,7 @@ const sizeBtn = {
 const cartBtn = {
   width: "100%",
   padding: "14px",
+  background: "#000",
   color: "#fff",
   border: "none",
   borderRadius: "12px",

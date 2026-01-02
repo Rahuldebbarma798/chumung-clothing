@@ -16,48 +16,50 @@ export default function CartPage() {
       <h1 style={title}>Your Cart</h1>
 
       {cart.length === 0 ? (
-        <p style={{ color: "#777" }}>
-          Your cart is empty.{" "}
-          <Link href="/" style={{ textDecoration: "underline" }}>
-            Continue shopping
-          </Link>
-        </p>
+        <p style={empty}>Your cart is empty.</p>
       ) : (
         <>
           {/* CART ITEMS */}
           <div style={list}>
             {cart.map((item) => (
-              <div key={item.id} style={row}>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  style={image}
-                />
+              <div key={`${item.id}-${item.size}`} style={row}>
+                {/* IMAGE */}
+                <img src={item.image} alt={item.name} style={image} />
 
+                {/* INFO */}
                 <div style={info}>
                   <div style={name}>{item.name}</div>
+
+                  {item.size && (
+                    <div style={meta}>Size: {item.size}</div>
+                  )}
+
                   <div style={price}>₹{item.price}</div>
 
+                  {/* QUANTITY */}
                   <div style={qtyRow}>
                     <button
                       style={qtyBtn}
-                      onClick={() => decrease(item.id)}
+                      onClick={() => decrease(item.id, item.size ?? "")}
                     >
                       −
                     </button>
+
                     <span style={qty}>{item.quantity}</span>
+
                     <button
                       style={qtyBtn}
-                      onClick={() => increase(item.id)}
+                      onClick={() => increase(item.id, item.size ?? "")}
                     >
                       +
                     </button>
                   </div>
                 </div>
 
+                {/* REMOVE */}
                 <button
                   style={removeBtn}
-                  onClick={() => remove(item.id)}
+                  onClick={() => remove(item.id, item.size ?? "")}
                 >
                   Remove
                 </button>
@@ -65,29 +67,13 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* ORDER SUMMARY */}
-          <div style={orderSummary}>
-            <h3 style={summaryTitle}>Order Summary</h3>
-
-            {cart.map((item) => (
-              <div key={item.id} style={summaryItem}>
-                <span>
-                  {item.name} × {item.quantity}
-                </span>
-                <span>₹{item.price * item.quantity}</span>
-              </div>
-            ))}
-
-            <div style={summaryDivider} />
-
-            <div style={summaryItem}>
-              <strong>Subtotal</strong>
+          {/* SUMMARY */}
+          <div style={summary}>
+            <div style={summaryRow}>
+              <span>Total</span>
               <strong>₹{total}</strong>
             </div>
-          </div>
 
-          {/* CHECKOUT */}
-          <div style={checkoutWrap}>
             <Link href="/checkout" style={checkoutBtn}>
               Proceed to Checkout →
             </Link>
@@ -109,29 +95,32 @@ const page = {
 const title = {
   fontSize: "22px",
   fontWeight: 600,
-  marginBottom: "28px",
-  textAlign: "left" as const,
+  marginBottom: "24px",
+};
+
+const empty = {
+  color: "#777",
 };
 
 const list = {
   display: "flex",
   flexDirection: "column" as const,
-  gap: "18px",
+  gap: "16px",
 };
 
 const row = {
   display: "flex",
   gap: "16px",
+  alignItems: "center",
   padding: "16px",
   borderRadius: "18px",
   border: "1px solid #eee",
-  background: "#fafafa",
-  alignItems: "center",
+  background: "#fff",
 };
 
 const image = {
   width: "90px",
-  height: "120px",
+  height: "110px",
   objectFit: "cover" as const,
   borderRadius: "14px",
 };
@@ -143,19 +132,24 @@ const info = {
 const name = {
   fontSize: "15px",
   fontWeight: 500,
-  marginBottom: "4px",
+};
+
+const meta = {
+  fontSize: "12px",
+  color: "#777",
+  marginTop: "4px",
 };
 
 const price = {
-  fontSize: "13px",
-  color: "#666",
-  marginBottom: "10px",
+  marginTop: "6px",
+  fontSize: "14px",
 };
 
 const qtyRow = {
   display: "flex",
   alignItems: "center",
   gap: "10px",
+  marginTop: "10px",
 };
 
 const qtyBtn = {
@@ -168,7 +162,8 @@ const qtyBtn = {
 };
 
 const qty = {
-  fontSize: "14px",
+  minWidth: "18px",
+  textAlign: "center" as const,
 };
 
 const removeBtn = {
@@ -179,44 +174,27 @@ const removeBtn = {
   cursor: "pointer",
 };
 
-const orderSummary = {
+const summary = {
   marginTop: "32px",
-  padding: "20px",
-  borderRadius: "16px",
-  border: "1px solid #eee",
-  background: "#fff",
+  paddingTop: "20px",
+  borderTop: "1px solid #eee",
 };
 
-const summaryTitle = {
-  fontSize: "15px",
-  fontWeight: 500,
-  marginBottom: "14px",
-};
-
-const summaryItem = {
+const summaryRow = {
   display: "flex",
   justifyContent: "space-between",
-  fontSize: "14px",
-  marginBottom: "8px",
-};
-
-const summaryDivider = {
-  height: "1px",
-  background: "#eee",
-  margin: "12px 0",
-};
-
-const checkoutWrap = {
-  marginTop: "28px",
+  fontSize: "16px",
+  marginBottom: "16px",
 };
 
 const checkoutBtn = {
   display: "block",
-  textAlign: "center" as const,
-  padding: "16px",
+  width: "100%",
+  padding: "14px",
   borderRadius: "999px",
   background: "#000",
   color: "#fff",
+  textAlign: "center" as const,
   textDecoration: "none",
-  fontSize: "15px",
+  fontSize: "14px",
 };
