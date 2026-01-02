@@ -92,15 +92,16 @@ export default function ProductPage() {
   style={cartBtn}
   onClick={() =>
     addToCart({
-      id: product.id,                 // string UUID
+      id: product.id,
       name: product.name,
-      image: product.images[0],        // ✅ REQUIRED
-      price: product.price,            // ✅ REQUIRED
+      price: product.price,
+      image: product.images[0],
     })
   }
 >
   Add to Cart
 </button>
+
 
       </div>
     </main>
