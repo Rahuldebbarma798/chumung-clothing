@@ -1,9 +1,19 @@
 export async function uploadToCloudinary(file: File): Promise<string> {
+  console.log("🌍 CLOUD NAME:", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
+  console.log("📦 UPLOAD PRESET:", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
+  if (
+    !process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    !process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+  ) {
+    throw new Error("❌ Cloudinary env vars missing on client");
+  }
+
   const formData = new FormData();
   formData.append("file", file);
   formData.append(
     "upload_preset",
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
   );
 
   const res = await fetch(
@@ -14,12 +24,12 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     }
   );
 
-  if (!res.ok) {
-    throw new Error("Cloudinary upload failed");
+  const data = await res.json();
+  console.log("☁️ CLOUDINARY RESPONSE:", data);
+
+  if (!data.secure_url) {
+    throw new Error("❌ Cloudinary did not return secure_url");
   }
 
-  const data = await res.json();
-
-  // ✅ THIS IS THE KEY LINE
   return data.secure_url;
 }
