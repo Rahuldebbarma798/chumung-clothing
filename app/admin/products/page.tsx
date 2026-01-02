@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useProducts } from "@/app/context/ProductContext";
 import { useCategories } from "@/app/context/CategoryContext";
-import { uploadToCloudinary } from "@/app/lib/cloudinary";
 
 export default function AdminProductsPage() {
   const { addProduct, deleteProduct, products } = useProducts();
@@ -30,100 +29,98 @@ export default function AdminProductsPage() {
     try {
       setLoading(true);
 
-      const urls: string[] = [];
-      for (const file of images) {
-        const url = await uploadToCloudinary(file);
-        urls.push(url);
-      }
+      // 🔥 UPLOAD IMAGES VIA API ROUTE (SERVER SIDE)
+      const formData = new FormData();
+      images.forEach((img) => formData.append("files", img));
 
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!data.urls) throw new Error("Upload failed");
+
+      // ✅ SAVE PRODUCT WITH REAL IMAGE URLS
       await addProduct({
         name,
         price: Number(price),
-        images: urls,
+        images: data.urls,
         sizes: [],
         category,
       });
 
+      // RESET
       setName("");
       setPrice("");
       setCategory("");
       setImages([]);
-    } catch {
-      alert("Failed to upload");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to upload product");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main style={page}>
-      <h1 style={title}>Admin · Products</h1>
+    <main style={{ padding: 32, maxWidth: 1000 }}>
+      <h1 style={{ fontSize: 22, marginBottom: 20 }}>Admin · Products</h1>
 
       {/* ADD PRODUCT */}
       <section style={card}>
-        <h3 style={cardTitle}>Add New Product</h3>
+        <h3>Add Product</h3>
 
-        <div style={formGrid}>
-          <input
-            placeholder="Product name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={input}
-          />
+        <input
+          placeholder="Product name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={input}
+        />
 
-          <input
-            placeholder="Price"
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            style={input}
-          />
+        <input
+          placeholder="Price"
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          style={input}
+        />
 
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={input}
-          >
-            <option value="">Select category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={input}
+        >
+          <option value="">Select category</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-        </div>
+        <input type="file" multiple accept="image/*" onChange={handleImageChange} />
 
-        {/* IMAGE PREVIEW */}
         {images.length > 0 && (
           <div style={previewGrid}>
             {images.map((img, i) => (
-              <img
-                key={i}
-                src={URL.createObjectURL(img)}
-                style={previewImg}
-              />
+              <img key={i} src={URL.createObjectURL(img)} style={previewImg} />
             ))}
           </div>
         )}
 
-        <button style={primaryBtn} onClick={handleSubmit} disabled={loading}>
-          {loading ? "Uploading…" : "Save Product"}
+        <button onClick={handleSubmit} disabled={loading} style={btn}>
+          {loading ? "Uploading..." : "Save Product"}
         </button>
       </section>
 
       {/* PRODUCT LIST */}
-      <section style={{ marginTop: 48 }}>
-        <h3 style={cardTitle}>All Products</h3>
+      <section style={{ marginTop: 40 }}>
+        <h3>Products</h3>
 
         {products.length === 0 ? (
-          <p style={{ color: "#777" }}>No products yet</p>
+          <p>No products yet</p>
         ) : (
           <div style={list}>
             {products.map((p) => (
@@ -131,18 +128,16 @@ export default function AdminProductsPage() {
                 <Link href={`/product/${p.id}`} style={productLink}>
                   <img src={p.images?.[0]} style={thumb} />
                   <div>
-                    <div style={{ fontWeight: 500 }}>{p.name}</div>
-                    <div style={meta}>₹{p.price}</div>
+                    <div>{p.name}</div>
+                    <div style={{ fontSize: 12 }}>₹{p.price}</div>
                   </div>
                 </Link>
 
                 <button
-                  style={deleteBtn}
                   onClick={() => {
-                    if (confirm("Delete this product?")) {
-                      deleteProduct(p.id);
-                    }
+                    if (confirm("Delete product?")) deleteProduct(p.id);
                   }}
+                  style={del}
                 >
                   Delete
                 </button>
@@ -157,110 +152,77 @@ export default function AdminProductsPage() {
 
 /* ================= STYLES ================= */
 
-const page = {
-  padding: "32px",
-  maxWidth: "980px",
-  margin: "0 auto",
-};
-
-const title = {
-  fontSize: "22px",
-  fontWeight: 600,
-  marginBottom: "28px",
-};
-
 const card = {
   background: "#fff",
-  borderRadius: "18px",
-  padding: "24px",
+  padding: 20,
+  borderRadius: 14,
   border: "1px solid #eee",
 };
 
-const cardTitle = {
-  fontSize: "16px",
-  fontWeight: 500,
-  marginBottom: "18px",
-};
-
-const formGrid = {
-  display: "grid",
-  gap: "12px",
-  marginBottom: "16px",
-};
-
 const input = {
-  padding: "12px 14px",
-  borderRadius: "12px",
+  width: "100%",
+  padding: 12,
+  marginBottom: 12,
+  borderRadius: 10,
   border: "1px solid #ddd",
-  fontSize: "14px",
 };
 
-const primaryBtn = {
+const btn = {
+  padding: 12,
   width: "100%",
-  marginTop: "16px",
-  padding: "14px",
-  borderRadius: "999px",
   background: "#000",
   color: "#fff",
   border: "none",
-  fontSize: "14px",
-  cursor: "pointer",
+  borderRadius: 10,
 };
 
 const previewGrid = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
-  gap: "10px",
-  marginTop: "10px",
+  gridTemplateColumns: "repeat(auto-fill, minmax(70px, 1fr))",
+  gap: 10,
+  marginBottom: 16,
 };
 
 const previewImg = {
   width: "100%",
-  height: "80px",
+  height: 70,
   objectFit: "cover" as const,
-  borderRadius: "10px",
+  borderRadius: 8,
 };
 
 const list = {
   display: "flex",
   flexDirection: "column" as const,
-  gap: "14px",
+  gap: 12,
 };
 
 const row = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "16px",
-  borderRadius: "16px",
+  padding: 14,
   border: "1px solid #eee",
-  background: "#fafafa",
+  borderRadius: 14,
 };
 
 const productLink = {
   display: "flex",
-  gap: "14px",
+  gap: 12,
   alignItems: "center",
   textDecoration: "none",
   color: "#000",
 };
 
 const thumb = {
-  width: "64px",
-  height: "64px",
+  width: 60,
+  height: 60,
   objectFit: "cover" as const,
-  borderRadius: "12px",
+  borderRadius: 10,
 };
 
-const meta = {
-  fontSize: "12px",
-  color: "#777",
-};
-
-const deleteBtn = {
+const del = {
   background: "none",
   border: "none",
-  color: "#ff3b30",
-  fontSize: "13px",
+  color: "red",
   cursor: "pointer",
 };
