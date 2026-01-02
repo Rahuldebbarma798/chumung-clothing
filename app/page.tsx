@@ -5,6 +5,7 @@ import HeroSlider from "./components/HeroSlider";
 import { useProducts } from "./context/ProductContext";
 import { useWishlist } from "./context/WishlistContext";
 import { Heart } from "lucide-react";
+import { optimizeCloudinary } from "./lib/image";
 
 export default function HomePage() {
   const { products } = useProducts();
@@ -16,18 +17,26 @@ export default function HomePage() {
       <section style={categoryWrap}>
         <Link href="/men" style={categoryCard}>
           <img
-            src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759568/men_wmitzl.webp"
+            src={optimizeCloudinary(
+              "https://res.cloudinary.com/chumungcloud/image/upload/v1766759568/men_wmitzl.webp",
+              600
+            )}
             alt="Men"
             style={categoryImg}
+            loading="lazy"
           />
           <span style={categoryText}>MEN</span>
         </Link>
 
         <Link href="/women" style={categoryCard}>
           <img
-            src="https://res.cloudinary.com/chumungcloud/image/upload/v1766759749/women_homepage_susm5r.jpg"
+            src={optimizeCloudinary(
+              "https://res.cloudinary.com/chumungcloud/image/upload/v1766759749/women_homepage_susm5r.jpg",
+              600
+            )}
             alt="Women"
             style={categoryImg}
+            loading="lazy"
           />
           <span style={categoryText}>WOMEN</span>
         </Link>
@@ -45,47 +54,40 @@ export default function HomePage() {
         ) : (
           <>
             <div style={productGrid}>
-              {products.slice(0, 6).map((p) => {
-                const id = String(p.id);              // ✅ FORCE STRING
-                const price = Number(p.price) || 0;  // ✅ FORCE NUMBER
-                const image = p.images?.[0] || "";
+              {products.slice(0, 6).map((p) => (
+                <Link key={p.id} href={`/product/${p.id}`} style={productCard}>
+                  <div style={cardWrap}>
+                    <button
+                      style={heartBtn}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        toggleWishlist({
+                          id: p.id,
+                          name: p.name,
+                          image: p.images[0],
+                          price: p.price,
+                        });
+                      }}
+                    >
+                      <Heart
+                        size={18}
+                        strokeWidth={1.6}
+                        fill={isWishlisted(p.id) ? "#000" : "none"}
+                      />
+                    </button>
 
-                return (
-                  <Link key={id} href={`/product/${id}`} style={productCard}>
-                    <div style={cardWrap}>
-                      <button
-                        style={heartBtn}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleWishlist({
-                            id,           // ✅ string
-                            name: p.name,
-                            image,
-                            price,        // ✅ number
-                          });
-                        }}
-                      >
-                        <Heart
-                          size={18}
-                          strokeWidth={1.6}
-                          fill={isWishlisted(id) ? "#000" : "none"}
-                        />
-                      </button>
+                    <img
+                      src={optimizeCloudinary(p.images[0], 500)}
+                      alt={p.name}
+                      style={productImg}
+                      loading="lazy"
+                    />
+                  </div>
 
-                      {image && (
-                        <img
-                          src={image}
-                          alt={p.name}
-                          style={productImg}
-                        />
-                      )}
-                    </div>
-
-                    <div style={productName}>{p.name}</div>
-                    <div style={productPrice}>₹{price}</div>
-                  </Link>
-                );
-              })}
+                  <div style={productName}>{p.name}</div>
+                  <div style={productPrice}>₹{p.price}</div>
+                </Link>
+              ))}
             </div>
 
             <div style={viewMoreWrap}>
@@ -117,63 +119,28 @@ export default function HomePage() {
   );
 }
 
-/* ================= STYLES ================= */
+/* ===== STYLES (UNCHANGED) ===== */
 
-const categoryWrap = {
-  display: "flex",
-  gap: "12px",
-  padding: "16px",
-};
-
-const categoryCard = {
-  position: "relative" as const,
-  flex: 1,
-  textDecoration: "none",
-};
-
-const categoryImg = {
-  width: "100%",
-  height: "120px",
-  objectFit: "cover" as const,
-  borderRadius: "10px",
-};
-
+const categoryWrap = { display: "flex", gap: "12px", padding: "16px" };
+const categoryCard = { position: "relative" as const, flex: 1, textDecoration: "none" };
+const categoryImg = { width: "100%", height: "120px", objectFit: "cover" as const, borderRadius: "10px" };
 const categoryText = {
   position: "absolute" as const,
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   color: "#fff",
-  fontSize: "16px",
+  fontSize: "18px",
   fontWeight: 500,
-  letterSpacing: "0.2em",
+  letterSpacing: "0.18em",
   textShadow: "0 2px 10px rgba(0,0,0,0.45)",
 };
 
-const productSection = {
-  padding: "40px 16px",
-};
-
-const sectionTitle = {
-  marginBottom: "18px",
-  fontSize: "18px",
-};
-
-const productGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-  gap: "18px",
-};
-
-const productCard = {
-  textDecoration: "none",
-  color: "#000",
-};
-
-const cardWrap = {
-  position: "relative" as const,
-};
-
+const productSection = { padding: "40px 16px" };
+const sectionTitle = { marginBottom: "18px", fontSize: "18px" };
+const productGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "18px" };
+const productCard = { textDecoration: "none", color: "#000" };
+const cardWrap = { position: "relative" as const };
 const heartBtn = {
   position: "absolute" as const,
   top: "10px",
@@ -182,51 +149,14 @@ const heartBtn = {
   border: "none",
   borderRadius: "50%",
   padding: "6px",
-  cursor: "pointer",
 };
-
-const productImg = {
-  width: "100%",
-  height: "200px",
-  objectFit: "cover" as const,
-  borderRadius: "14px",
-};
-
-const productName = {
-  marginTop: "10px",
-  fontSize: "14px",
-};
-
-const productPrice = {
-  fontSize: "13px",
-  color: "#666",
-};
-
-const viewMoreWrap = {
-  marginTop: "32px",
-  textAlign: "center" as const,
-};
-
-const viewMoreBtn = {
-  display: "inline-block",
-  padding: "12px 22px",
-  borderRadius: "999px",
-  border: "1px solid #000",
-  fontSize: "14px",
-  textDecoration: "none",
-  color: "#000",
-};
-
-const videoWrap = {
-  marginTop: "52px",
-  padding: "0 16px",
-};
-
-const video = {
-  width: "100%",
-  borderRadius: "16px",
-};
-
+const productImg = { width: "100%", height: "200px", objectFit: "cover" as const, borderRadius: "14px" };
+const productName = { marginTop: "10px", fontSize: "14px" };
+const productPrice = { fontSize: "13px", color: "#666" };
+const viewMoreWrap = { marginTop: "32px", textAlign: "center" as const };
+const viewMoreBtn = { padding: "12px 22px", borderRadius: "999px", border: "1px solid #000", color: "#000" };
+const videoWrap = { marginTop: "52px", padding: "0 16px" };
+const video = { width: "100%", borderRadius: "16px" };
 const brandDesc = {
   marginTop: "24px",
   maxWidth: "520px",
