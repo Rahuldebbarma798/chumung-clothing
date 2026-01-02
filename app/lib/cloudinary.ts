@@ -20,6 +20,6 @@ export async function uploadToCloudinary(file: File): Promise<string> {
 
   const data = await res.json();
 
-  // ✅ THIS IS THE IMAGE URL YOU NEED
+  // ✅ THIS IS THE KEY LINE
   return data.secure_url;
 }
