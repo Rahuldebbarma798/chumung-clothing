@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
+import { optimizeCloudinary } from "@/app/lib/image";
 
 export default function CartPage() {
   const { cart, increase, decrease, remove } = useCart();
@@ -19,37 +20,34 @@ export default function CartPage() {
         <p style={empty}>Your cart is empty.</p>
       ) : (
         <>
-          {/* CART ITEMS */}
           <div style={list}>
             {cart.map((item) => (
               <div key={`${item.id}-${item.size}`} style={row}>
                 {/* IMAGE */}
-                <img src={item.image} alt={item.name} style={image} />
+                <img
+                  src={optimizeCloudinary(item.image, 200)}
+                  alt={item.name}
+                  style={image}
+                />
 
                 {/* INFO */}
                 <div style={info}>
                   <div style={name}>{item.name}</div>
-
-                  {item.size && (
-                    <div style={meta}>Size: {item.size}</div>
-                  )}
-
+                  <div style={meta}>Size: {item.size}</div>
                   <div style={price}>₹{item.price}</div>
 
-                  {/* QUANTITY */}
+                  {/* QTY */}
                   <div style={qtyRow}>
                     <button
                       style={qtyBtn}
-                      onClick={() => decrease(item.id, item.size ?? "")}
+                      onClick={() => decrease(item.id, item.size)}
                     >
                       −
                     </button>
-
-                    <span style={qty}>{item.quantity}</span>
-
+                    <span>{item.quantity}</span>
                     <button
                       style={qtyBtn}
-                      onClick={() => increase(item.id, item.size ?? "")}
+                      onClick={() => increase(item.id, item.size)}
                     >
                       +
                     </button>
@@ -59,7 +57,7 @@ export default function CartPage() {
                 {/* REMOVE */}
                 <button
                   style={removeBtn}
-                  onClick={() => remove(item.id, item.size ?? "")}
+                  onClick={() => remove(item.id, item.size)}
                 >
                   Remove
                 </button>
@@ -69,9 +67,9 @@ export default function CartPage() {
 
           {/* SUMMARY */}
           <div style={summary}>
-            <div style={summaryRow}>
+            <div style={totalRow}>
               <span>Total</span>
-              <strong>₹{total}</strong>
+              <span>₹{total}</span>
             </div>
 
             <Link href="/checkout" style={checkoutBtn}>
@@ -87,15 +85,16 @@ export default function CartPage() {
 /* ================= STYLES ================= */
 
 const page = {
-  padding: "32px 16px",
-  maxWidth: "900px",
+  padding: "24px 16px 100px",
+  maxWidth: "720px",
   margin: "0 auto",
 };
 
 const title = {
-  fontSize: "22px",
-  fontWeight: 600,
+  fontSize: "20px",
+  fontWeight: 500,
   marginBottom: "24px",
+  textAlign: "left" as const,
 };
 
 const empty = {
@@ -110,19 +109,19 @@ const list = {
 
 const row = {
   display: "flex",
-  gap: "16px",
-  alignItems: "center",
-  padding: "16px",
-  borderRadius: "18px",
+  gap: "14px",
+  padding: "14px",
+  borderRadius: "16px",
   border: "1px solid #eee",
-  background: "#fff",
+  background: "#fafafa",
+  alignItems: "center",
 };
 
 const image = {
-  width: "90px",
-  height: "110px",
+  width: "80px",
+  height: "100px",
   objectFit: "cover" as const,
-  borderRadius: "14px",
+  borderRadius: "12px",
 };
 
 const info = {
@@ -130,7 +129,7 @@ const info = {
 };
 
 const name = {
-  fontSize: "15px",
+  fontSize: "14px",
   fontWeight: 500,
 };
 
@@ -141,8 +140,8 @@ const meta = {
 };
 
 const price = {
+  fontSize: "13px",
   marginTop: "6px",
-  fontSize: "14px",
 };
 
 const qtyRow = {
@@ -156,21 +155,16 @@ const qtyBtn = {
   width: "28px",
   height: "28px",
   borderRadius: "50%",
-  border: "1px solid #ddd",
+  border: "1px solid #ccc",
   background: "#fff",
   cursor: "pointer",
-};
-
-const qty = {
-  minWidth: "18px",
-  textAlign: "center" as const,
 };
 
 const removeBtn = {
   background: "none",
   border: "none",
   color: "#ff3b30",
-  fontSize: "13px",
+  fontSize: "12px",
   cursor: "pointer",
 };
 
@@ -180,21 +174,21 @@ const summary = {
   borderTop: "1px solid #eee",
 };
 
-const summaryRow = {
+const totalRow = {
   display: "flex",
   justifyContent: "space-between",
   fontSize: "16px",
-  marginBottom: "16px",
+  fontWeight: 500,
+  marginBottom: "20px",
 };
 
 const checkoutBtn = {
   display: "block",
-  width: "100%",
+  textAlign: "center" as const,
   padding: "14px",
   borderRadius: "999px",
   background: "#000",
   color: "#fff",
-  textAlign: "center" as const,
   textDecoration: "none",
-  fontSize: "14px",
+  fontSize: "15px",
 };

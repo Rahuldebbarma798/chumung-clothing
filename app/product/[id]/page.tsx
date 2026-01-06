@@ -15,56 +15,47 @@ export default function ProductPage() {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
 
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
 
   if (products.length === 0) {
     return <p style={{ padding: 24 }}>Loading product…</p>;
   }
 
-  const found = products.find((p) => p.id === id);
+  const product = products.find((p) => p.id === id);
 
-  if (!found) {
+  if (!product) {
     return <p style={{ padding: 24 }}>Product not found</p>;
   }
 
-  const product = found; // ✅ TS-safe
+  function handleAddToCart() {
+    if (!selectedSize) return;
 
-function handleAddToCart() {
-  if (product.sizes.length > 0 && !selectedSize) {
-    alert("Please select a size");
-    return;
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      size: selectedSize,
+    });
+
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
   }
-
-  addToCart({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    image: product.images[0],
-    size: selectedSize, // ✅ ALWAYS string
-  });
-
-  setAdded(true);
-  setTimeout(() => setAdded(false), 1500);
-}
-
 
   return (
     <main style={page}>
-      {/* PRODUCT IMAGE */}
-      <div style={imageWrap}>
-        <img
-          src={optimizeCloudinary(product.images[0], 900)}
-          alt={product.name}
-          style={image}
-        />
-      </div>
+      {/* IMAGE */}
+      <img
+        src={optimizeCloudinary(product.images[0], 900)}
+        style={image}
+        alt={product.name}
+      />
 
-      {/* PRODUCT INFO */}
+      {/* INFO */}
       <div style={info}>
         <div style={topRow}>
           <h1 style={title}>{product.name}</h1>
-
           <button
             onClick={() =>
               toggleWishlist({
@@ -85,7 +76,7 @@ function handleAddToCart() {
 
         <p style={price}>₹{product.price}</p>
 
-        {/* SIZE SELECT */}
+        {/* SIZE */}
         {product.sizes.length > 0 && (
           <div style={sizeWrap}>
             {product.sizes.map((s) => (
@@ -106,8 +97,18 @@ function handleAddToCart() {
           </div>
         )}
 
-        <button style={cartBtn} onClick={handleAddToCart}>
-          {added ? "✓ Added to Cart" : "Add to Cart"}
+        {/* ADD TO CART */}
+        <button
+          style={{
+            ...cartBtn,
+            background: added ? "#2ecc71" : "#000",
+            opacity: !selectedSize ? 0.5 : 1,
+            cursor: !selectedSize ? "not-allowed" : "pointer",
+          }}
+          disabled={!selectedSize}
+          onClick={handleAddToCart}
+        >
+          {added ? "Added ✓" : "Add to Cart"}
         </button>
       </div>
     </main>
@@ -117,11 +118,7 @@ function handleAddToCart() {
 /* ================= STYLES ================= */
 
 const page = {
-  paddingBottom: "80px",
-};
-
-const imageWrap = {
-  width: "100%",
+  paddingBottom: "90px",
 };
 
 const image = {
@@ -161,18 +158,17 @@ const sizeBtn = {
   padding: "10px 14px",
   borderRadius: "999px",
   background: "#fff",
-  cursor: "pointer",
   fontSize: "13px",
 };
 
 const cartBtn = {
   width: "100%",
   padding: "14px",
-  background: "#000",
   color: "#fff",
   border: "none",
   borderRadius: "12px",
   fontSize: "15px",
+  transition: "all 0.25s ease",
 };
 
 const heartBtn = {

@@ -1,52 +1,42 @@
 "use client";
 
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useProducts } from "@/app/context/ProductContext";
-import { useParams, useSearchParams } from "next/navigation";
 
 export default function ProductsPage() {
-  const { products } = useProducts();
-  const params = useParams();
+  const { page } = useParams() as { page: string };
   const searchParams = useSearchParams();
-
-  const page = Number(params.page || 1);
   const query = searchParams.get("q")?.toLowerCase() || "";
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(query)
-  );
+  const { products } = useProducts();
 
-  const ITEMS_PER_PAGE = 12;
-  const start = (page - 1) * ITEMS_PER_PAGE;
-  const paginated = filtered.slice(start, start + ITEMS_PER_PAGE);
-
-  if (products.length === 0) {
-    return <p style={{ padding: 24 }}>Loading products…</p>;
-  }
+  const filteredProducts = query
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(query)
+      )
+    : products;
 
   return (
-    <main style={{ padding: "24px" }}>
-      <h1 style={title}>
-        {query ? `Search: "${query}"` : "Products"}
-      </h1>
+    <main style={wrap}>
+      {query && (
+        <p style={resultText}>
+          Showing results for <b>“{query}”</b>
+        </p>
+      )}
 
-      {paginated.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <p style={{ color: "#777" }}>No products found.</p>
       ) : (
         <div style={grid}>
-          {paginated.map((product) => (
+          {filteredProducts.map((p) => (
             <Link
-              key={product.id}
-              href={`/product/${product.id}`}
+              key={p.id}
+              href={`/product/${p.id}`}
               style={card}
             >
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                style={image}
-              />
-              <div style={name}>{product.name}</div>
-              <div style={price}>₹{product.price}</div>
+              <img src={p.images?.[0]} style={img} />
+              <div style={name}>{p.name}</div>
             </Link>
           ))}
         </div>
@@ -57,9 +47,13 @@ export default function ProductsPage() {
 
 /* ================= STYLES ================= */
 
-const title = {
-  fontSize: "22px",
-  marginBottom: "20px",
+const wrap = {
+  padding: "96px 16px 40px",
+};
+
+const resultText = {
+  marginBottom: "18px",
+  fontSize: "14px",
 };
 
 const grid = {
@@ -73,7 +67,7 @@ const card = {
   color: "#000",
 };
 
-const image = {
+const img = {
   width: "100%",
   height: "220px",
   objectFit: "cover" as const,
@@ -81,11 +75,6 @@ const image = {
 };
 
 const name = {
-  marginTop: "8px",
+  marginTop: "10px",
   fontSize: "14px",
-};
-
-const price = {
-  fontSize: "13px",
-  color: "#666",
 };
