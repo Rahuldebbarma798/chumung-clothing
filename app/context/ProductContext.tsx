@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { supabase } from "../lib/supabase";
+
+/* ================= TYPES ================= */
 
 export type Product = {
   id: string;
@@ -18,48 +20,76 @@ type ProductContextType = {
   deleteProduct: (id: string) => Promise<void>;
 };
 
+/* ================= CONTEXT ================= */
+
 const ProductContext = createContext<ProductContextType | null>(null);
+
+/* ================= PROVIDER ================= */
 
 export function ProductProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    // 🚨 Prevent Supabase from running during build
-    if (typeof window === "undefined") return;
+  /* -------- FETCH PRODUCTS (FAST & SAFE) -------- */
+  const fetchProducts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    async function fetchProducts() {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!error && data) {
-        setProducts(data);
-      }
+    if (error) {
+      console.error("Supabase fetch error:", error.message);
+      return;
     }
 
-    fetchProducts();
-    setReady(true);
+    if (data) {
+      setProducts(data);
+    }
   }, []);
 
+  /* -------- ADD PRODUCT -------- */
   async function addProduct(p: Omit<Product, "id">) {
-    await supabase.from("products").insert([p]);
+    const { error } = await supabase.from("products").insert([p]);
+
+    if (error) {
+      console.error("Add product failed:", error.message);
+      return;
+    }
+
+    // re-fetch once after insert
+    fetchProducts();
   }
 
+  /* -------- DELETE PRODUCT -------- */
   async function deleteProduct(id: string) {
-    await supabase.from("products").delete().eq("id", id);
+    const { error } = await supabase.from("products").delete().eq("id", id);
+
+    if (error) {
+      console.error("Delete product failed:", error.message);
+      return;
+    }
+
+    // re-fetch once after delete
+    fetchProducts();
   }
+
+  /* -------- FETCH ONCE ON APP LOAD -------- */
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   return (
     <ProductContext.Provider value={{ products, addProduct, deleteProduct }}>
-      {ready && children}
+      {children}
     </ProductContext.Provider>
   );
 }
 
+/* ================= HOOK ================= */
+
 export function useProducts() {
   const ctx = useContext(ProductContext);
-  if (!ctx) throw new Error("useProducts must be used inside ProductProvider");
+  if (!ctx) {
+    throw new Error("useProducts must be used inside ProductProvider");
+  }
   return ctx;
 }
