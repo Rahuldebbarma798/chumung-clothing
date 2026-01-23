@@ -10,6 +10,9 @@ import { OrderProvider } from "./context/OrderContext";
 import { CategoryProvider } from "./context/CategoryContext";
 import { WishlistProvider } from "./context/WishlistContext";
 
+/* 🔥 THIS LINE FIXES THE BUILD */
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "CHUMUNG CLOTHING",
   description: "Premium thrift fashion",
@@ -24,20 +27,20 @@ export default function RootLayout({
     <html lang="en">
       <body style={body}>
         <AuthProvider>
-  <WishlistProvider>
-    <CategoryProvider>
-      <ProductProvider>
-        <CartProvider>
-          <OrderProvider>
-            <Header />
-            <main style={main}>{children}</main>
-            <Footer />
-          </OrderProvider>
-        </CartProvider>
-      </ProductProvider>
-    </CategoryProvider>
-  </WishlistProvider>
-</AuthProvider>
+          <WishlistProvider>
+            <CategoryProvider>
+              <ProductProvider>
+                <CartProvider>
+                  <OrderProvider>
+                    <Header />
+                    <main style={main}>{children}</main>
+                    <Footer />
+                  </OrderProvider>
+                </CartProvider>
+              </ProductProvider>
+            </CategoryProvider>
+          </WishlistProvider>
+        </AuthProvider>
       </body>
     </html>
   );
