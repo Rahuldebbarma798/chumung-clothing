@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client";
 
 import Link from "next/link";
@@ -6,6 +8,7 @@ import { useProducts } from "@/app/context/ProductContext";
 import { useWishlist } from "@/app/context/WishlistContext";
 import { Heart } from "lucide-react";
 import { optimizeCloudinary } from "@/app/lib/image";
+
 
 export default function ProductsPage() {
   const { products } = useProducts();
