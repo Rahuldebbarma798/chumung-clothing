@@ -1,36 +1,59 @@
 "use client";
 
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function AccountPage() {
-  const { loggedIn, login, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+
+  if (loading) {
+    return <p style={{ padding: 16 }}>Loading account…</p>;
+  }
+
+  if (!user) {
+    return (
+      <main style={{ padding: "16px" }}>
+        <h1 style={{ fontSize: 18, marginBottom: 12 }}>Account</h1>
+        <p style={{ marginBottom: 16 }}>You are not logged in.</p>
+
+        <button
+          onClick={() => router.push("/login")}
+          style={btn}
+        >
+          Login
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main style={{ padding: "16px" }}>
-      <h1>Account</h1>
+      <h1 style={{ fontSize: 18, marginBottom: 12 }}>My Account</h1>
 
-      {!loggedIn ? (
-        <>
-          <p>Please login to continue</p>
-          <button onClick={login} style={btn}>
-            Login
-          </button>
-        </>
-      ) : (
-        <>
-          <p>You are logged in</p>
-          <button onClick={logout} style={btn}>
-            Logout
-          </button>
-        </>
-      )}
+      <p style={{ marginBottom: 8 }}>
+        <strong>Email:</strong> {user.email}
+      </p>
+
+      <button
+        onClick={async () => {
+          await logout();
+          router.push("/");
+        }}
+        style={btn}
+      >
+        Logout
+      </button>
     </main>
   );
 }
 
 const btn = {
-  marginTop: "12px",
-  padding: "8px 14px",
-  border: "1px solid #000",
-  background: "#fff",
+  padding: "12px 18px",
+  borderRadius: "10px",
+  border: "none",
+  background: "#000",
+  color: "#fff",
+  fontSize: "14px",
+  cursor: "pointer",
 };
