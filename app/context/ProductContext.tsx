@@ -11,8 +11,14 @@ export type Product = {
   price: number;
   images: string[];
   sizes: string[];
-  category: string | null;
+  category: string | null; // legacy
+  audience: string[];
+  type: string;
+  on_sale: boolean;        // 👈 NEW
+  discount_percent: number; // 👈 NEW (0–100)
 };
+
+
 
 type ProductContextType = {
   products: Product[];

@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../context/ProductContext";
 import { Search, Heart, ShoppingBag, User, Menu } from "lucide-react";
+import { optimizeCloudinary } from "../lib/image";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -18,7 +19,7 @@ export default function Header() {
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const { cart } = useCart();
+  const { itemCount } = useCart();
   const { products } = useProducts();
 
   /* Hydration safe */
@@ -26,10 +27,11 @@ export default function Header() {
     setMounted(true);
   }, []);
 
-  /* Close on route change */
+  /* Close menus on route change */
   useEffect(() => {
     setOpen(false);
     setShowSearch(false);
+    setQuery("");
   }, [pathname]);
 
   /* Click outside to close search */
@@ -44,10 +46,6 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showSearch]);
 
-  const cartCount = mounted
-    ? cart.reduce((sum, i) => sum + (i.quantity || 0), 0)
-    : 0;
-
   const suggestions =
     query.trim().length === 0
       ? []
@@ -55,7 +53,7 @@ export default function Header() {
           .filter((p) =>
             p.name.toLowerCase().includes(query.toLowerCase())
           )
-          .slice(0, 5);
+          .slice(0, 6);
 
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -69,7 +67,7 @@ export default function Header() {
   return (
     <>
       <header style={header}>
-        <button style={menuBtn} onClick={() => setOpen(true)}>
+        <button style={iconBtn} onClick={() => setOpen(true)}>
           <Menu size={22} />
         </button>
 
@@ -88,8 +86,8 @@ export default function Header() {
 
           <Link href="/cart" style={cartWrap}>
             <ShoppingBag size={20} />
-            {mounted && cartCount > 0 && (
-              <span style={badge}>{cartCount}</span>
+            {mounted && itemCount > 0 && (
+              <span style={badge}>{itemCount}</span>
             )}
           </Link>
 
@@ -99,40 +97,48 @@ export default function Header() {
         </div>
       </header>
 
-      {/* SEARCH BAR */}
+      {/* SEARCH OVERLAY */}
       {showSearch && (
-        <div style={searchWrap} ref={searchRef}>
-          <form onSubmit={handleSearchSubmit} style={searchForm}>
-            <input
-              autoFocus
-              placeholder="Search t-shirts, hoodies…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={searchInput}
-            />
-            <button type="submit" style={searchBtn}>
-              <Search size={18} />
-            </button>
-          </form>
+        <div style={searchOverlay}>
+          <div style={searchBox} ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} style={searchForm}>
+              <input
+                autoFocus
+                placeholder="Search t-shirts, hoodies, thrift drops…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={searchInput}
+              />
+              <button type="submit" style={searchBtn}>
+                <Search size={18} />
+              </button>
+            </form>
 
-          {suggestions.length > 0 && (
-            <div style={suggestBox}>
-              {suggestions.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/product/${p.id}`}
-                  style={suggestItem}
-                  onClick={() => {
-                    setShowSearch(false);
-                    setQuery("");
-                  }}
-                >
-                  <img src={p.images?.[0]} style={suggestImg} />
-                  <span style={suggestName}>{p.name}</span>
-                </Link>
-              ))}
-            </div>
-          )}
+            {suggestions.length > 0 && (
+              <div style={suggestList}>
+                {suggestions.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/product/${p.id}`}
+                    style={suggestItem}
+                    onClick={() => {
+                      setShowSearch(false);
+                      setQuery("");
+                    }}
+                  >
+                    <img
+                      src={optimizeCloudinary(p.images?.[0], 120)}
+                      style={suggestImg}
+                    />
+                    <div>
+                      <div style={suggestName}>{p.name}</div>
+                      <div style={suggestPrice}>₹{p.price}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -168,7 +174,7 @@ const brand = {
 
 const icons = {
   display: "flex",
-  gap: "14px",
+  gap: "16px",
   alignItems: "center",
 };
 
@@ -188,19 +194,24 @@ const badge = {
   borderRadius: "999px",
 };
 
-const menuBtn = { background: "none", border: "none", cursor: "pointer" };
-
 /* SEARCH */
 
-const searchWrap = {
+const searchOverlay = {
   position: "fixed" as const,
-  top: "64px",
+  top: 0,
   left: 0,
   right: 0,
-  background: "#fff",
-  padding: "12px 16px",
-  borderBottom: "1px solid #eee",
+  bottom: 0,
+  background: "rgba(0,0,0,0.35)",
   zIndex: 9999,
+};
+
+const searchBox = {
+  background: "#fff",
+  marginTop: "64px",
+  padding: "16px",
+  borderBottomLeftRadius: "16px",
+  borderBottomRightRadius: "16px",
 };
 
 const searchForm = {
@@ -208,7 +219,7 @@ const searchForm = {
   alignItems: "center",
   border: "1px solid #ddd",
   borderRadius: "999px",
-  padding: "10px 14px",
+  padding: "12px 14px",
 };
 
 const searchInput = {
@@ -221,31 +232,36 @@ const searchInput = {
 const searchBtn = {
   background: "none",
   border: "none",
-  cursor: "pointer",
 };
 
-const suggestBox = {
-  marginTop: "10px",
+const suggestList = {
+  marginTop: "14px",
   display: "flex",
   flexDirection: "column" as const,
-  gap: "10px",
+  gap: "12px",
 };
 
 const suggestItem = {
   display: "flex",
-  alignItems: "center",
   gap: "12px",
+  alignItems: "center",
   textDecoration: "none",
   color: "#000",
 };
 
 const suggestImg = {
-  width: "48px",
-  height: "48px",
-  borderRadius: "8px",
+  width: "52px",
+  height: "68px",
   objectFit: "cover" as const,
+  borderRadius: "10px",
 };
 
 const suggestName = {
   fontSize: "14px",
+  fontWeight: 500,
+};
+
+const suggestPrice = {
+  fontSize: "12px",
+  color: "#777",
 };

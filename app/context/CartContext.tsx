@@ -1,22 +1,25 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 export type CartItem = {
   id: string;
   name: string;
   price: number;
   image: string;
-  size: string;        // ✅ ADD SIZE
+  size: string;
   quantity: number;
 };
 
 type CartContextType = {
   cart: CartItem[];
+  itemCount: number;
+  subtotal: number;
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   increase: (id: string, size: string) => void;
   decrease: (id: string, size: string) => void;
   remove: (id: string, size: string) => void;
+  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -70,8 +73,35 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  function clearCart() {
+    setCart([]);
+  }
+
+  /* ===== DERIVED VALUES (PERF + CLEAN) ===== */
+
+  const itemCount = useMemo(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart]
+  );
+
+  const subtotal = useMemo(
+    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [cart]
+  );
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, increase, decrease, remove }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        itemCount,
+        subtotal,
+        addToCart,
+        increase,
+        decrease,
+        remove,
+        clearCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -79,6 +109,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used inside CartProvider");
+  if (!ctx) {
+    throw new Error("useCart must be used inside CartProvider");
+  }
   return ctx;
 }

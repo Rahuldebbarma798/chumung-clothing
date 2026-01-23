@@ -5,12 +5,7 @@ import { useCart } from "@/app/context/CartContext";
 import { optimizeCloudinary } from "@/app/lib/image";
 
 export default function CartPage() {
-  const { cart, increase, decrease, remove } = useCart();
-
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const { cart, increase, decrease, remove, subtotal } = useCart();
 
   return (
     <main style={page}>
@@ -65,11 +60,11 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* SUMMARY */}
+          {/* STICKY SUMMARY */}
           <div style={summary}>
             <div style={totalRow}>
               <span>Total</span>
-              <span>₹{total}</span>
+              <span>₹{subtotal}</span>
             </div>
 
             <Link href="/checkout" style={checkoutBtn}>
@@ -85,7 +80,7 @@ export default function CartPage() {
 /* ================= STYLES ================= */
 
 const page = {
-  padding: "24px 16px 100px",
+  padding: "24px 16px 140px",
   maxWidth: "720px",
   margin: "0 auto",
 };
@@ -94,7 +89,6 @@ const title = {
   fontSize: "20px",
   fontWeight: 500,
   marginBottom: "24px",
-  textAlign: "left" as const,
 };
 
 const empty = {
@@ -113,7 +107,7 @@ const row = {
   padding: "14px",
   borderRadius: "16px",
   border: "1px solid #eee",
-  background: "#fafafa",
+  background: "#fff",
   alignItems: "center",
 };
 
@@ -157,7 +151,6 @@ const qtyBtn = {
   borderRadius: "50%",
   border: "1px solid #ccc",
   background: "#fff",
-  cursor: "pointer",
 };
 
 const removeBtn = {
@@ -165,13 +158,16 @@ const removeBtn = {
   border: "none",
   color: "#ff3b30",
   fontSize: "12px",
-  cursor: "pointer",
 };
 
 const summary = {
-  marginTop: "32px",
-  paddingTop: "20px",
+  position: "fixed" as const,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  background: "#fff",
   borderTop: "1px solid #eee",
+  padding: "16px",
 };
 
 const totalRow = {
@@ -179,7 +175,7 @@ const totalRow = {
   justifyContent: "space-between",
   fontSize: "16px",
   fontWeight: 500,
-  marginBottom: "20px",
+  marginBottom: "12px",
 };
 
 const checkoutBtn = {
@@ -189,6 +185,5 @@ const checkoutBtn = {
   borderRadius: "999px",
   background: "#000",
   color: "#fff",
-  textDecoration: "none",
   fontSize: "15px",
 };
