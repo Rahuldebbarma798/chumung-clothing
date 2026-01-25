@@ -26,11 +26,13 @@ export default function ProductsPage() {
     <main style={{ padding: "24px 16px" }}>
       <div style={grid}>
         {filtered.map((p) => {
-          const isOnSale = p.on_sale && p.discount_percent > 0;
+          const onSale = Boolean(p.on_sale);
+          const discount = Number(p.discount_percent || 0);
 
-          const finalPrice = isOnSale
-            ? Math.round(p.price * (1 - p.discount_percent / 100))
-            : p.price;
+          const finalPrice =
+            onSale && discount > 0
+              ? Math.round(p.price * (1 - discount / 100))
+              : p.price;
 
           return (
             <Link key={p.id} href={`/product/${p.id}`} style={card}>
@@ -59,14 +61,14 @@ export default function ProductsPage() {
                   style={img}
                 />
 
-                {isOnSale && (
-                  <span style={saleBadge}>-{p.discount_percent}%</span>
+                {onSale && discount > 0 && (
+                  <span style={saleBadge}>-{discount}%</span>
                 )}
               </div>
 
               <div style={name}>{p.name}</div>
 
-              {isOnSale ? (
+              {onSale && discount > 0 ? (
                 <div>
                   <span style={salePrice}>₹{finalPrice}</span>
                   <span style={oldPrice}>₹{p.price}</span>
